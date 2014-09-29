@@ -9,6 +9,10 @@ It contains:
 
 #Requirements
 This tool was succeffully tested with CDH 5.1.2 and Spark 1.1.0.
+You should install these components:
+* [SBT tool](www.scala-sbt.org/download.html)
+* [Spark libraries](spark.apache.org/downloads.html)
+* [Cloudera distributive](www.cloudera.com/content/support/en/downloads.html), choose link to CDH
 
 #Build
 
