@@ -1,4 +1,4 @@
-name := "Loaders"
+name := "spark-multitool"
 
 version := "1.0"
 

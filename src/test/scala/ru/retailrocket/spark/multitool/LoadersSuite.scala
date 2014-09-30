@@ -1,4 +1,4 @@
-package ru.retailrocket.spark
+package ru.retailrocket.spark.multitool
 
 import org.scalatest._
 
