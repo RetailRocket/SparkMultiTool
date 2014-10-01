@@ -29,9 +29,10 @@ Include spark-multitool*.jar in --jars path in spark-submit like this:
 spark-submit --master local --executor-memory 2G --class "Tst" --num-executors 1 --executor-cores 1 --jars lib/spark-multitool_2.10-0.1.jar target/scala-2.10/tst_2.10-0.1.jar
 
 ```
-
+See examples folder.
 
 ##Loaders
+This example loads files from "/test/*" and combine them in mappers.
 ```
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
@@ -44,7 +45,7 @@ object Tst{
 	val conf = new SparkConf().setMaster("local").setAppName("My App")
 	val sc = new SparkContext("local", "My App")
 
-	val sessions = Loaders.combineTextFile(sc, "file://.LICENSE")
+	val sessions = Loaders.combineTextFile(sc, "file:///test/*")
   // or val sessions = Loaders.combineTextFile(sc, conf.weblogs(), size = 256, delim = "\n")
   // where size is split size in Megabytes, delim - line break string
 
