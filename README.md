@@ -32,7 +32,7 @@ spark-submit --master local --executor-memory 2G --class "Tst" --num-executors 1
 See examples folder.
 
 ##Loaders
-ru.retailrocket.spark.multitool.Loaders - combine input files before mappers by means of Hadoop CombineFileInputFormat. In our case it reduced the number of mappers from 100000 to approx 3000 and made job significantly faster.
+**ru.retailrocket.spark.multitool.Loaders** - combine input files before mappers by means of Hadoop CombineFileInputFormat. In our case it reduced the number of mappers from 100000 to approx 3000 and made job significantly faster.
 Parameters:
 * **sc** - SparkContext object
 * **path** - path to the files (as in spark.textFile)
