@@ -63,7 +63,7 @@ object Loaders {
     override def getProgress: Float = if (startOffset == end) 0.0f else math.min(1.0f, (pos - startOffset).toFloat / (end - startOffset))
   }
 
-  def combineTextFile(path: String, size: Long = 256, delim: String = "\n")(implicit sc: SparkContext) : RDD[String] = {
+  def combineTextFile(sc: SparkContext, path: String, size: Long = 256, delim: String = "\n") : RDD[String] = {
     val hadoopConf = new Configuration()
     hadoopConf.set("textinputformat.record.delimiter", delim)
     hadoopConf.set("mapreduce.input.fileinputformat.input.dir.recursive", "true")

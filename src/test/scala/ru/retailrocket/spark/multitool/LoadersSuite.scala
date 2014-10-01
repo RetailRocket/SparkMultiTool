@@ -9,12 +9,12 @@ import org.apache.spark.rdd._
 
 
 class LoadersSuite extends FunSuite with BeforeAndAfter {
-  implicit lazy val sc: SparkContext = new SparkContext("local", getClass.getSimpleName)
+  lazy val sc: SparkContext = new SparkContext("local", getClass.getSimpleName)
 
   test("combineTextFile") {
     def path(file: String) = getClass.getResource("/" + file).getFile
 
-    val output = Loaders.combineTextFile(path("combine")).collect.sorted
+    val output = Loaders.combineTextFile(sc, path("combine")).collect.sorted
     assert(output.deep == Array("1","2","3","4").deep)
   }
 }
