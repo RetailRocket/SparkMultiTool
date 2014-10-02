@@ -14,6 +14,7 @@ You should install SBT:
 
 
 #Build
+This build based on CDH 5.1.2 and Spark 1.1.0. Edit build.sbt If you have another environment.
 
 For building install sbt, launch a terminal, change current to sparkmultitool directory  and launch a command:
 
