@@ -52,8 +52,9 @@ object Tst{
 	val conf = new SparkConf().setMaster("local").setAppName("My App")
 	val sc = new SparkContext("local", "My App")
 
-	val sessions = sc.combineTextFile("file:///test/*")
-  // or val sessions = sc.combineTextFile(conf.weblogs(), size = 256, delim = "\n")
+	val path = "file:///test/*"
+	val sessions = sc.combineTextFile(path)
+  // or val sessions = sc.combineTextFile(path, size = 256, delim = "\n")
   // where size is split size in Megabytes, delim - line break string
 
 	println(sessions.count())
