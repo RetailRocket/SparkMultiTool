@@ -35,7 +35,6 @@ See examples folder.
 ##Loaders
 **ru.retailrocket.spark.multitool.Loaders** - combine input files before mappers by means of Hadoop CombineFileInputFormat. In our case it reduced the number of mappers from 100000 to approx 3000 and made job significantly faster.
 Parameters:
-* **sc** - SparkContext object
 * **path** - path to the files (as in spark.textFile)
 * **size** - size of target partition in Megabytes. Optimal value equals to a HDFS block size
 * **delim** - line delimiters
@@ -46,15 +45,15 @@ import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
 
-import ru.retailrocket.spark.multitool.Loaders
+import ru.retailrocket.spark.multitool.Loaders._
 
 object Tst{
 	def main(args: Array[String]) ={
 	val conf = new SparkConf().setMaster("local").setAppName("My App")
 	val sc = new SparkContext("local", "My App")
 
-	val sessions = Loaders.combineTextFile(sc, "file:///test/*")
-  // or val sessions = Loaders.combineTextFile(sc, conf.weblogs(), size = 256, delim = "\n")
+	val sessions = sc.combineTextFile("file:///test/*")
+  // or val sessions = sc.combineTextFile(conf.weblogs(), size = 256, delim = "\n")
   // where size is split size in Megabytes, delim - line break string
 
 	println(sessions.count())
