@@ -14,16 +14,18 @@ import org.apache.hadoop.io._
 import org.apache.hadoop.mapreduce.lib.input._
 import org.apache.hadoop.conf.Configuration
 
+import scala.reflect.ClassTag
+
 
 object Loaders {
-  class CombineTextFileInputFormat extends CombineFileInputFormat[LongWritable, Text] {
+  private class CombineTextFileInputFormat extends CombineFileInputFormat[LongWritable, Text] {
     override def createRecordReader(
       split: InputSplit,
       context: TaskAttemptContext): RecordReader[LongWritable, Text] =
-      new CombineFileRecordReader(split.asInstanceOf[CombineFileSplit], context, classOf[CombineTextFileRecordReader]);
+      new CombineFileRecordReader(split.asInstanceOf[CombineFileSplit], context, classOf[CombineTextFileRecordReader])
   }
 
-  class CombineTextFileRecordReader(split: CombineFileSplit, context: TaskAttemptContext, index: java.lang.Integer)
+  private class CombineTextFileRecordReader(split: CombineFileSplit, context: TaskAttemptContext, index: Integer)
       extends RecordReader[LongWritable, Text] {
 
     val conf = context.getConfiguration
@@ -63,7 +65,10 @@ object Loaders {
     override def getProgress: Float = if (startOffset == end) 0.0f else math.min(1.0f, (pos - startOffset).toFloat / (end - startOffset))
   }
 
-  def combineTextFile(sc: SparkContext, path: String, size: Long = 256, delim: String = "\n") : RDD[String] = {
+  private val defaultCombineSize = 256
+  private val defaultCombineDelim = "\n"
+
+  def combineTextFile(sc: SparkContext, path: String, size: Long = defaultCombineSize, delim: String = defaultCombineDelim) : RDD[String] = {
     val hadoopConf = new Configuration()
     hadoopConf.set("textinputformat.record.delimiter", delim)
     hadoopConf.set("mapreduce.input.fileinputformat.input.dir.recursive", "true")
@@ -71,5 +76,14 @@ object Loaders {
     hadoopConf.setLong("mapred.max.split.size", size*1024*1024)
 
     sc.newAPIHadoopRDD(hadoopConf, classOf[CombineTextFileInputFormat], classOf[LongWritable], classOf[Text]).map(_._2.toString)
+  }
+
+  def combineTextFile[T:ClassTag](loader: String => T)(sc: SparkContext, path: String, size: Long = defaultCombineSize, delim: String = defaultCombineDelim): RDD[T] = {
+    combineTextFile(sc, path, size, delim).flatMap{s => scala.util.Try{ loader(s) }.toOption}
+  }
+
+  implicit class SparkContextFunctions(val self: SparkContext) extends AnyVal {
+    def combineTextFile(path: String, size: Long = defaultCombineSize, delim: String = defaultCombineDelim): RDD[String] = Loaders.combineTextFile(self, path, size, delim)
+    def combineTextFile[T:ClassTag](loader: String => T)(path: String, size: Long = defaultCombineSize, delim: String = defaultCombineDelim): RDD[T] = Loaders.combineTextFile(loader)(self, path, size, delim)
   }
 }
