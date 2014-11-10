@@ -33,18 +33,22 @@ object Loaders {
     val fs = path.getFileSystem(conf)
     val codec = Option(new CompressionCodecFactory(conf).getCodec(path))
 
-    val startOffset = split.getOffset(index)
-    val end = Long.MaxValue
+    val start = split.getOffset(index)
+    val length = if(codec.isEmpty) split.getLength(index) else Long.MaxValue
+    val end = start + length
+
+    val fd = fs.open(path)
+    if(start > 0) fd.seek(start)
 
     val fileIn = codec match {
-      case Some(codec) => codec.createInputStream(fs.open(path))
-      case None => fs.open(path)
+      case Some(codec) => codec.createInputStream(fd)
+      case None => fd
     }
 
     var reader = new LineReader(fileIn)
-    var pos = startOffset;
+    var pos = start;
 
-    protected val key = startOffset
+    protected val key = start
     protected val value = new Text
 
     override def initialize(split: InputSplit, ctx: TaskAttemptContext) {}
@@ -62,7 +66,7 @@ object Loaders {
     override def close(): Unit = if (reader != null) { reader.close(); reader = null }
     override def getCurrentKey: LongWritable = key
     override def getCurrentValue: Text = value
-    override def getProgress: Float = if (startOffset == end) 0.0f else math.min(1.0f, (pos - startOffset).toFloat / (end - startOffset))
+    override def getProgress: Float = if (start == end) 0.0f else math.min(1.0f, (pos - start).toFloat / (end - start))
   }
 
   private val defaultCombineSize = 256
