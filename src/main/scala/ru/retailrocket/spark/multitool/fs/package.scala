@@ -2,6 +2,7 @@ package ru.retailrocket.spark.multitool
 
 import org.apache.hadoop.fs._
 import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.io.compress.CompressionCodec
 import org.apache.spark.rdd.RDD
 
 
@@ -38,8 +39,22 @@ package object fs {
     }
   }
 
+  def saveViaTmp(tmpRoot: String, filename: String, codec: Class[_ <: CompressionCodec])
+                (data: RDD[String]): Unit = {
+    actionViaTmp(tmpRoot, filename) { tmpPath: Path =>
+      data.saveAsTextFile(tmpPath.toString, codec)
+    }
+  }
+
   def saveViaTmp(tmpRoot: String, filename: String)
                 (data: RDD[String]): Unit = {
+    actionViaTmp(tmpRoot, filename) { tmpPath: Path =>
+      data.saveAsTextFile(tmpPath.toString)
+    }
+  }
+
+  def actionViaTmp(tmpRoot: String, filename: String)
+                  (body: (Path) => Unit): Unit = {
     val fs = FileSystem.get(new Configuration())
 
     val tmpRootPath = new Path(tmpRoot)
@@ -50,7 +65,7 @@ package object fs {
 
     makeFree(fs)(tmpPath)
     fs.mkdirs(tmpRootPath)
-    data.saveAsTextFile(tmpPath.toString)
+    body(tmpPath)
 
     makeFree(fs)(distPath)
     fs.mkdirs(distRootPath)
