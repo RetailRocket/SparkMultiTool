@@ -147,6 +147,10 @@ object Loaders {
     def combine(): RDD[String] = {
       sc.newAPIHadoopRDD(conf, classOf[CombineTextFileInputFormat], classOf[LongWritable], classOf[Text]).map(_._2.toString)
     }
+
+    def combine[T:ClassTag](loader: String => T): RDD[T] = {
+      combine().flatMap{s => scala.util.Try{ loader(s) }.toOption}
+    }
   }
 
   def forPath(sc: SparkContext, path: String) = {
