@@ -1,3 +1,6 @@
+package ru.retailrocket.spark.multitool
+
+
 object HashFNV {
   val FNV_32_INIT: Int = 33554467
   val FNV_32_PRIME: Int = 0x01000193
