@@ -2,10 +2,10 @@
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0">
     <modelVersion>4.0.0</modelVersion>
     <groupId>ru.retailrocket.spark</groupId>
-    <artifactId>spark-multitool_2.10</artifactId>
+    <artifactId>multitool_2.10</artifactId>
     <packaging>jar</packaging>
-    <description>spark-multitool</description>
-    <version>0.1-SNAPSHOT</version>
+    <description>multitool</description>
+    <version>0.2-SNAPSHOT</version>
     <name>spark-multitool</name>
     <organization>
         <name>ru.retailrocket.spark</name>
