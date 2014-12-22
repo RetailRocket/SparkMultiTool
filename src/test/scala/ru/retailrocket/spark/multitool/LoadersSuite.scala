@@ -23,4 +23,14 @@ class LoadersSuite extends FunSuite with BeforeAndAfter {
     val output = sc.combineTextFile(_.toLong)(path("combine")).collect.sorted
     assert(output.deep == Array(1,2,3,4).deep)
   }
+
+  test("forPathAndCombine") {
+    val output = sc.forPath(path("combine")).combine().collect.sorted
+    assert(output.deep == Array("1","2","3","4").deep)
+  }
+
+  test("forPathAndCombineWithPath") {
+    val output = sc.forPath(path("combine")).combineWithPath().collect.sorted
+    assert(output(1)._1.endsWith("file_1.csv"))
+  }
 }

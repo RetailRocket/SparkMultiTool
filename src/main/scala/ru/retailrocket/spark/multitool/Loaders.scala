@@ -17,7 +17,7 @@ import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.conf.Configured
 
 import scala.reflect.ClassTag
-
+import scala.reflect._
 
 object Loaders {
   abstract class Filter extends Configured with PathFilter {
@@ -53,15 +53,40 @@ object Loaders {
       }
   }
 
-  private class CombineTextFileInputFormat extends CombineFileInputFormat[LongWritable, Text] {
+  private class CombineTextFileWithOffsetInputFormat extends CombineFileInputFormat[LongWritable, Text] {
     override def createRecordReader(
       split: InputSplit,
       context: TaskAttemptContext): RecordReader[LongWritable, Text] =
-      new CombineFileRecordReader(split.asInstanceOf[CombineFileSplit], context, classOf[CombineTextFileRecordReader])
+      new CombineFileRecordReader(split.asInstanceOf[CombineFileSplit], context, classOf[CombineTextFileWithOffsetRecordReader])
   }
 
-  private class CombineTextFileRecordReader(split: CombineFileSplit, context: TaskAttemptContext, index: Integer)
-      extends RecordReader[LongWritable, Text] {
+  private class CombineTextFileWithOffsetRecordReader(
+    split: CombineFileSplit,
+    context: TaskAttemptContext,
+    index: Integer) extends CombineTextFileRecordReader[LongWritable](split, context, index) {
+
+    override def generateKey(split: CombineFileSplit, index: Integer) = split.getOffset(index)
+  }
+
+  private class CombineTextFileWithPathInputFormat extends CombineFileInputFormat[Text, Text] {
+    override def createRecordReader(
+      split: InputSplit,
+      context: TaskAttemptContext): RecordReader[Text, Text] =
+      new CombineFileRecordReader(split.asInstanceOf[CombineFileSplit], context, classOf[CombineTextFileWithPathRecordReader])
+  }
+
+  private class CombineTextFileWithPathRecordReader(
+    split: CombineFileSplit,
+    context: TaskAttemptContext,
+    index: Integer) extends CombineTextFileRecordReader[Text](split, context, index) {
+
+    override def generateKey(split: CombineFileSplit, index: Integer) = split.getPath(index).toString
+  }
+
+  private abstract class CombineTextFileRecordReader[K](
+    split: CombineFileSplit,
+    context: TaskAttemptContext,
+    index: Integer) extends RecordReader[K, Text] {
 
     val conf = context.getConfiguration
     val path = split.getPath(index)
@@ -83,7 +108,9 @@ object Loaders {
     var reader = new LineReader(fileIn)
     var pos = start
 
-    protected val key = start
+    def generateKey(split: CombineFileSplit, index: Integer): K
+
+    protected val key = generateKey(split, index)
     protected val value = new Text
 
     override def initialize(split: InputSplit, ctx: TaskAttemptContext) {}
@@ -99,13 +126,15 @@ object Loaders {
     }
     
     override def close(): Unit = if (reader != null) { reader.close(); reader = null }
-    override def getCurrentKey: LongWritable = key
+    override def getCurrentKey: K = key
     override def getCurrentValue: Text = value
     override def getProgress: Float = if (start == end) 0.0f else math.min(1.0f, (pos - start).toFloat / (end - start))
   }
 
   private val defaultCombineSize = 256
   private val defaultCombineDelim = "\n"
+
+  def generateOffsetKey(split: CombineFileSplit, index: Integer) = split.getOffset(index)
 
   class Context(val sc: SparkContext, val path: String) {
 
@@ -145,11 +174,17 @@ object Loaders {
     }
 
     def combine(): RDD[String] = {
-      sc.newAPIHadoopRDD(conf, classOf[CombineTextFileInputFormat], classOf[LongWritable], classOf[Text]).map(_._2.toString)
+      sc.newAPIHadoopRDD(conf, classOf[CombineTextFileWithOffsetInputFormat], classOf[LongWritable], classOf[Text]).map(_._2.toString)
     }
 
     def combine[T:ClassTag](loader: String => T): RDD[T] = {
       combine().flatMap{s => scala.util.Try{ loader(s) }.toOption}
+    }
+
+    def combineWithPath(): RDD[(String, String)] = {
+      sc
+        .newAPIHadoopRDD(conf, classOf[CombineTextFileWithPathInputFormat], classOf[Text], classOf[Text])
+        .map{case(path, data) => (path.toString, data.toString)}
     }
   }
 
@@ -172,7 +207,7 @@ object Loaders {
       hadoopConf.set(Filter.RulesPropName, filterRules.get)
     }
 
-    sc.newAPIHadoopRDD(hadoopConf, classOf[CombineTextFileInputFormat], classOf[LongWritable], classOf[Text]).map(_._2.toString)
+    sc.newAPIHadoopRDD(hadoopConf, classOf[CombineTextFileWithOffsetInputFormat], classOf[LongWritable], classOf[Text]).map(_._2.toString)
   }
 
   def combineTextFile[T:ClassTag](loader: String => T)(sc: SparkContext, path: String,
