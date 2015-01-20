@@ -52,13 +52,57 @@ object Tst{
 	val conf = new SparkConf().setMaster("local").setAppName("My App")
 	val sc = new SparkContext("local", "My App")
 
-	val path = "file:///test/*"
+    val path = "file:///test/*"
+    {
 	val sessions = sc.combineTextFile(path)
-  // or val sessions = sc.combineTextFile(path, size = 256, delim = "\n")
-  // where size is split size in Megabytes, delim - line break string
-
+    // or val sessions = sc.combineTextFile(path, size = 256, delim = "\n")
+    // where size is split size in Megabytes, delim - line break string
 	println(sessions.count())
-   }
+    }
+    
+    {
+    // or via new API
+    val sessions = sc.forPath(path)
+      .setSplitSize(256) // optional
+      .setRecordDelim("\n") // optional
+      .combine()
+	println(sessions.count())
+    }
+
+    {
+    // you can also get RDD[(String, String)] with (file, line)
+    val sessions = sc.forPath(path)
+      .combineWithPath()
+	println(sessions.count())
+    {
+
+    {
+    // or add path filter, e.g. for partitioning
+    class FileNameEqualityFilter extends Filter {
+      def check(rules: Traversable[Filter.Rule], path: Array[String]) = {
+        rules.forall{
+          case(k, Array(eq)) =>
+            k match {
+              case "file" => eq == path.last
+              case _ => false
+            }
+        }
+      }
+    }
+    val sessions = sc.forPath(path)
+      .addFilter(classOf[FileNameEqualityFilter], Seq("file" -> Array("file.name")))
+      .combine()
+	println(sessions.count())
+    }
+  }
 }
 
 ```
+
+##Algorithms
+
+**ru.retailrocket.spark.multitool.algs.cosine** - cosine similarity function.
+
+##Utility
+
+**ru.retailrocket.spark.multitool.HashFNV** - simple, but useful hash function. Original idea from org.apache.pig.piggybank.evaluation.string.HashFNV
