@@ -8,7 +8,20 @@ import org.apache.spark.SparkConf
 import org.apache.spark.rdd._
 
 import Loaders._
+import Loaders.Filter
 
+
+class FileNameEqualityFilter extends Filter {
+  def check(rules: Traversable[Filter.Rule], path: Array[String]) = {
+    rules.forall{
+      case(k, Array(eq)) =>
+        k match {
+          case "file" => eq == path.last
+          case _ => false
+        }
+    }
+  }
+}
 
 class LoadersSuite extends FunSuite with BeforeAndAfter {
   lazy val sc: SparkContext = new SparkContext("local", getClass.getSimpleName)
@@ -32,5 +45,12 @@ class LoadersSuite extends FunSuite with BeforeAndAfter {
   test("forPathAndCombineWithPath") {
     val output = sc.forPath(path("combine")).combineWithPath().collect.sorted
     assert(output(1)._1.endsWith("file_1.csv"))
+  }
+
+  test("forPathWithFilter") {
+    val output = sc.forPath(path("combine")+"/*")
+      .addFilter(classOf[FileNameEqualityFilter], Seq("file" -> Array("file_2.csv")))
+      .combine().collect.sorted
+    assert(output.deep == Array("3","4").deep)
   }
 }
