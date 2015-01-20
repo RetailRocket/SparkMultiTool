@@ -23,7 +23,7 @@ class FileNameEqualityFilter extends Filter {
   }
 }
 
-class LoadersSuite extends FunSuite with BeforeAndAfter {
+class LoadersSuite extends FunSuite with BeforeAndAfterAll {
   lazy val sc: SparkContext = new SparkContext("local", getClass.getSimpleName)
   def path(file: String) = getClass.getResource("/" + file).getFile
 
@@ -52,5 +52,9 @@ class LoadersSuite extends FunSuite with BeforeAndAfter {
       .addFilter(classOf[FileNameEqualityFilter], Seq("file" -> Array("file_2.csv")))
       .combine().collect.sorted
     assert(output.deep == Array("3","4").deep)
+  }
+
+  override def afterAll() {
+    sc.stop()
   }
 }
