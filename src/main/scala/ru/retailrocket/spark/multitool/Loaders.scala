@@ -41,7 +41,7 @@ object Loaders {
   object Filter {
     type Rule = (String, Array[String])
 
-    val Pattern = """(\w+)=([\w|\,]+)""".r
+    val Pattern = """([^=]+)=(.+)""".r
     val RulesPropName = "ru.retailrocket.loaders.filter.rules"
 
     def storeRules(src: Traversable[Rule]) = src.map{
