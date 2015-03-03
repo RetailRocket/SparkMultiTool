@@ -44,15 +44,6 @@ object RDDFunctions {
     TransformResult(output, error, ignore)
   }
 
-  implicit class RDDFunctionsImplicits[T:ClassTag](val self: RDD[T]) {
-    def transform[R:ClassTag](f: T=>Option[R]): TransformResult[T,R] = {
-      RDDFunctions.transform(f)(self)
-    }
-    def transform[R:ClassTag](f: T=>R)(implicit d: DummyImplicit): TransformResult[T,R] = {
-      RDDFunctions.transform(f)(self)
-    }
-  }
-
   class KeyBasedMultipleTextOutputFormat extends MultipleTextOutputFormat[Text, Text] {
     override def generateFileNameForKeyValue(key: Text, value: Text, name: String): String = {
       key.toString + "/" + name
