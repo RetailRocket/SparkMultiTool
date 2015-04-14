@@ -10,6 +10,9 @@ package object multitool {
   object Functions {
     def tap[T:ClassTag](f: T => Unit)(o: T) = {f(o); o}
     def applyIf[T:ClassTag](p: Boolean)(f: T => T)(o: T): T = {if(p) f(o) else o}
+
+    def maxBy[T,O<%Ordered[O]](f:T=>O)(a:T, b:T) = if(f(a)>f(b)) a else b
+    def minBy[T,O<%Ordered[O]](f:T=>O)(a:T, b:T) = if(f(a)<f(b)) a else b
   }
 
   object Implicits {
