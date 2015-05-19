@@ -13,6 +13,16 @@ package object multitool {
 
     def maxBy[T,O<%Ordered[O]](f:T=>O)(a:T, b:T) = if(f(a)>f(b)) a else b
     def minBy[T,O<%Ordered[O]](f:T=>O)(a:T, b:T) = if(f(a)<f(b)) a else b
+
+    def sumTuple2[T](a: (T,T), b: (T,T))(implicit num: Numeric[T]): (T,T) = {
+      import num._
+      (a._1+b._1, a._2+b._2)
+    }
+
+    def sumTuple3[T](a: (T,T,T), b: (T,T,T))(implicit num: Numeric[T]): (T,T,T) = {
+      import num._
+      (a._1+b._1, a._2+b._2, a._3+b._3)
+    }
   }
 
   object Implicits {
