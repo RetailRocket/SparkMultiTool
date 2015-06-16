@@ -25,10 +25,64 @@ package object multitool {
     }
   }
 
+  object PairFunctions {
+    def flatMapValues[K,V,T](src: Traversable[(K,V)])(f: (V) => TraversableOnce[T]): Traversable[(K,T)] =
+      src.flatMap { case (k,v) => f(v).map { r => (k, r) } }
+
+    def mapValues[K,V,T](src: Traversable[(K,V)])(f: (V) => T): Traversable[(K,T)] =
+      src.map {case (k,v) => (k, f(v)) }
+
+    def groupByKey[K,V](src: Traversable[(K,V)]) =
+      mapValues(src.groupBy { _._1 } ) { _.map { _._2 } }
+
+    def cogroup[K,V1,V2](src1: Traversable[(K,V1)], src2: Traversable[(K,V2)]): Traversable[(K, (Traversable[V1], Traversable[V2]))] = {
+      val g1 = groupByKey(src1).toMap
+      val g2 = groupByKey(src2).toMap
+      val ks = g1.keys.toSet | g2.keys.toSet
+      for {
+        k <- ks.toSeq
+        vs1 = g1.get(k).toList.flatten
+        vs2 = g2.get(k).toList.flatten
+      } yield (k, (vs1, vs2))
+    }
+
+    def join[K,V1,V2](src1: Traversable[(K,V1)], src2: Traversable[(K,V2)]): Traversable[(K, (V1, V2))] = {
+      for {
+        (k, (vs1, vs2)) <- cogroup(src1, src2)
+        v1 <- vs1
+        v2 <- vs2
+      } yield (k, (v1, v2))
+    }
+
+    def leftOuterJoin[K,V1,V2](src1: Traversable[(K,V1)], src2: Traversable[(K,V2)]): Traversable[(K, (V1, Option[V2]))] = {
+      for {
+        (k, (vs1, vs2)) <- cogroup(src1, src2)
+        v1 <- vs1
+        v2 <- if(vs2.isEmpty) Seq(None) else vs2.map { Option(_) }
+      } yield (k, (v1, v2))
+    }
+
+    def rightOuterJoin[K,V1,V2](src1: Traversable[(K,V1)], src2: Traversable[(K,V2)]): Traversable[(K, (Option[V1], V2))] = {
+      for {
+        (k, (vs1, vs2)) <- cogroup(src1, src2)
+        v1 <- if(vs1.isEmpty) Seq(None) else vs1.map { Option(_) }
+        v2 <- vs2
+      } yield (k, (v1, v2))
+    }
+  }
+
   object Implicits {
     implicit class MultitoolFunctionsImplicits[T:ClassTag](val self: T) {
       def tap(f: T => Unit) = Functions.tap(f)(self)
       def applyIf(p: Boolean)(f: T => T): T = Functions.applyIf(p)(f)(self)
+    }
+
+    implicit class MultitoolPairFunctionsImplicits[K:ClassTag, V:ClassTag](val self: Traversable[(K,V)]) {
+      def flatMapValues[T](f: (V) => TraversableOnce[T]) = PairFunctions.flatMapValues(self)(f)
+      def mapValues[T](f: (V) => T) = PairFunctions.mapValues(self)(f)
+      def groupByKey() = PairFunctions.groupByKey(self)
+      def cogroup[V2](src2: Traversable[(K,V2)]) = PairFunctions.cogroup(self, src2)
+      def join[V2](src2: Traversable[(K,V2)]) = PairFunctions.join(self, src2)
     }
 
     implicit class MultitoolRDDFunctionsImplicits[T:ClassTag](val self: RDD[T]) {
