@@ -77,6 +77,10 @@ package object multitool {
     }
   }
 
+  object CollFunctions {
+    def countByValue[T](src: Traversable[T]): Map[T, Long] = PairFunctions.countByKey(src.map { (_, 1L) } )
+  }
+
   object Implicits {
     implicit class MultitoolFunctionsImplicits[T:ClassTag](val self: T) {
       def tap(f: T => Unit) = Functions.tap(f)(self)
@@ -91,6 +95,10 @@ package object multitool {
       def countByKey() = PairFunctions.countByKey(self)
       def cogroup[V2](src2: Traversable[(K,V2)]) = PairFunctions.cogroup(self, src2)
       def join[V2](src2: Traversable[(K,V2)]) = PairFunctions.join(self, src2)
+    }
+
+    implicit class MultitoolCollFunctionsImplicits[T:ClassTag](val self: Traversable[T]) {
+      def countByValue() = CollFunctions.countByValue(self)
     }
 
     implicit class MultitoolRDDFunctionsImplicits[T:ClassTag](val self: RDD[T]) {
