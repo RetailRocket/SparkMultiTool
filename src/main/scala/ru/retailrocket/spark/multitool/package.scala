@@ -35,6 +35,12 @@ package object multitool {
     def groupByKey[K,V](src: Traversable[(K,V)]) =
       mapValues(src.groupBy { _._1 } ) { _.map { _._2 } }
 
+    def reduceByKey[K,V](src: Traversable[(K,V)])(f: (V,V) => V): Traversable[(K,V)] =
+      groupByKey(src).map { case (k, vs) => (k, vs.reduce(f)) }
+
+    def countByKey[K,V](src: Traversable[(K,V)]): Map[K, Long] =
+      reduceByKey(src.map { case (k, v) => (k, 1L) } ) { _+_ }.toMap
+
     def cogroup[K,V1,V2](src1: Traversable[(K,V1)], src2: Traversable[(K,V2)]): Traversable[(K, (Traversable[V1], Traversable[V2]))] = {
       val g1 = groupByKey(src1).toMap
       val g2 = groupByKey(src2).toMap
@@ -81,6 +87,8 @@ package object multitool {
       def flatMapValues[T](f: (V) => TraversableOnce[T]) = PairFunctions.flatMapValues(self)(f)
       def mapValues[T](f: (V) => T) = PairFunctions.mapValues(self)(f)
       def groupByKey() = PairFunctions.groupByKey(self)
+      def reduceByKey(f: (V,V) => V) = PairFunctions.reduceByKey(self)(f)
+      def countByKey() = PairFunctions.countByKey(self)
       def cogroup[V2](src2: Traversable[(K,V2)]) = PairFunctions.cogroup(self, src2)
       def join[V2](src2: Traversable[(K,V2)]) = PairFunctions.join(self, src2)
     }
