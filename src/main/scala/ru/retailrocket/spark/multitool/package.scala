@@ -111,8 +111,8 @@ package object multitool {
     }
 
     implicit class RichBoolean(val self: Boolean) extends AnyVal {
-      def to_i = if(self) 1 else 0
-      def to_d = if(self) 1.0 else 0.0
+      def toInt = if(self) 1 else 0
+      def toDouble = if(self) 1.0 else 0.0
     }
   }
 }
