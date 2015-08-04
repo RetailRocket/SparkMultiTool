@@ -85,6 +85,7 @@ package object multitool {
   object Implicits {
     implicit class MultitoolFunctionsImplicits[T:ClassTag](val self: T) {
       def tap(f: T => Unit) = Functions.tap(f)(self)
+      def tapIf(p: Boolean)(f: T => Unit) = Functions.tapIf(p)(f)(self)
       def applyIf(p: Boolean)(f: T => T): T = Functions.applyIf(p)(f)(self)
     }
 
