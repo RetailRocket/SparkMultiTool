@@ -27,7 +27,8 @@ import scala.util._
 
 object RDDFunctions {
   case class TransformResult[T, R: ClassTag](output: RDD[R], error: RDD[Throwable], ignore: RDD[T]) {
-    def summary: String = s"${classTag[R]} output ${output.count()} ignore ${ignore.count()}"
+    def name = classTag[R].toString
+    def summary: String = s"${name} output ${output.count()} ignore ${ignore.count()}"
     def cache(): TransformResult[T,R] = TransformResult(output.cache(), error.cache(), ignore.cache())
   }
 
