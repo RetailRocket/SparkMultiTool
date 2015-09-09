@@ -4,6 +4,7 @@ import scala.reflect.ClassTag
 import scala.util._
 
 import org.apache.spark.rdd._
+import org.apache.spark.sql._
 
 
 package object multitool {
@@ -109,6 +110,15 @@ package object multitool {
       }
       def transform[R:ClassTag](f: T=>R)(implicit d: DummyImplicit): RDDFunctions.TransformResult[T,R] = {
         RDDFunctions.transform(f)(self)
+      }
+    }
+
+    implicit class MultitoolDataFrameFunctionsImplicits(val self: DataFrame) {
+      def transform[R:ClassTag](f: Row=>Option[R]): RDDFunctions.TransformResult[Row,R] = {
+        DataFrameFunctions.transform(f)(self)
+      }
+      def transform[R:ClassTag](f: Row=>R)(implicit d: DummyImplicit): RDDFunctions.TransformResult[Row,R] = {
+        DataFrameFunctions.transform(f)(self)
       }
     }
 
