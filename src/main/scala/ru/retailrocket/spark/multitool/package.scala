@@ -98,6 +98,8 @@ package object multitool {
       def countByKey() = PairFunctions.countByKey(self)
       def cogroup[V2](src2: Traversable[(K,V2)]) = PairFunctions.cogroup(self, src2)
       def join[V2](src2: Traversable[(K,V2)]) = PairFunctions.join(self, src2)
+      def leftOuterJoin[V2](src2: Traversable[(K,V2)]) = PairFunctions.leftOuterJoin(self, src2)
+      def rightOuterJoin[V2](src2: Traversable[(K,V2)]) = PairFunctions.rightOuterJoin(self, src2)
     }
 
     implicit class MultitoolCollFunctionsImplicits[T:ClassTag](val self: Traversable[T]) {
