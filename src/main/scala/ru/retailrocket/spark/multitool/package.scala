@@ -77,6 +77,14 @@ package object multitool {
         v2 <- vs2
       } yield (k, (v1, v2))
     }
+
+    def fullOuterJoin[K,V1,V2](src1: Traversable[(K,V1)], src2: Traversable[(K,V2)]): Traversable[(K, (Option[V1], Option[V2]))] = {
+      for {
+        (k, (vs1, vs2)) <- multitool.PairFunctions.cogroup(src1, src2)
+        v1 <- if(vs1.isEmpty) Seq(None) else vs1.map { Option(_) }
+        v2 <- if(vs2.isEmpty) Seq(None) else vs2.map { Option(_) }
+      } yield (k, (v1, v2))
+    }
   }
 
   object CollFunctions {
@@ -100,6 +108,7 @@ package object multitool {
       def join[V2](src2: Traversable[(K,V2)]) = PairFunctions.join(self, src2)
       def leftOuterJoin[V2](src2: Traversable[(K,V2)]) = PairFunctions.leftOuterJoin(self, src2)
       def rightOuterJoin[V2](src2: Traversable[(K,V2)]) = PairFunctions.rightOuterJoin(self, src2)
+      def fullOuterJoin[V2](src2: Traversable[(K,V2)]) = PairFunctions.fullOuterJoin(self, src2)
     }
 
     implicit class MultitoolCollFunctionsImplicits[T:ClassTag](val self: Traversable[T]) {
