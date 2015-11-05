@@ -4,6 +4,7 @@ import org.apache.hadoop.fs._
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.io.compress.CompressionCodec
 import org.apache.spark.rdd.RDD
+import java.io.{BufferedReader, InputStreamReader, FileInputStream, FileOutputStream, File}
 
 
 package object fs {
@@ -79,5 +80,21 @@ package object fs {
     val fs = FileSystem.get(new Configuration())
     if(fs.exists(dstPath)) fs.delete(dstPath, true)
     fs.rename(srcPath, dstPath)
+  }
+
+  def storeLocal(data: String, path: String) {
+    val out = new FileOutputStream(path)
+    val bytes = data.getBytes
+    out.write(bytes, 0, bytes.size)
+    out.close()
+  }
+
+  def storeHdfs(data: String, path: String) {
+    val conf = new Configuration()
+    val fs = FileSystem.get(conf)
+    val out = fs.create(new Path(path))
+    val bytes = data.getBytes
+    out.write(bytes, 0, bytes.size)
+    out.close()
   }
 }
