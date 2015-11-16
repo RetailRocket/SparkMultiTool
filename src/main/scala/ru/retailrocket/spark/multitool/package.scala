@@ -116,10 +116,7 @@ package object multitool {
     }
 
     implicit class MultitoolRDDFunctionsImplicits[T:ClassTag](val self: RDD[T]) {
-      def transform[R:ClassTag](f: PartialFunction[T, Option[R]]): RDDFunctions.TransformResult[T,R] = {
-        RDDFunctions.transform(f)(self)
-      }
-      def transform[R:ClassTag](f: PartialFunction[T, R])(implicit d: DummyImplicit): RDDFunctions.TransformResult[T,R] = {
+      def transform[R:ClassTag](f: T=>R): RDDFunctions.TransformResult[T,R] = {
         RDDFunctions.transform(f)(self)
       }
     }

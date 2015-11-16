@@ -32,15 +32,7 @@ object RDDFunctions {
     def cache(): TransformResult[T,R] = TransformResult(output.cache(), error.cache(), ignore.cache())
   }
 
-  def transform[T:ClassTag, R:ClassTag](f: PartialFunction[T, Option[R]])(src: RDD[T]): TransformResult[T,R] = {
-    val dst = src.map{s => (s, Try{f(s)})}
-    val output = dst.flatMap{case (_, Success(d)) => d; case _ => None}
-    val error = dst.flatMap{case (_, Failure(t)) => Some(t); case _ => None}
-    val ignore = dst.flatMap{case (s, Failure(_)) => Some(s); case _ => None}
-    TransformResult(output, error, ignore)
-  }
-
-  def transform[T:ClassTag, R:ClassTag](f: PartialFunction[T, R])(src: RDD[T])(implicit d: DummyImplicit): TransformResult[T,R] = {
+  def transform[T:ClassTag, R:ClassTag](f: T=>R)(src: RDD[T]): TransformResult[T,R] = {
     val dst = src.map{s => (s, Try{f(s)})}
     val output = dst.flatMap{case (_, Success(d)) => Some(d); case _ => None}
     val error = dst.flatMap{case (_, Failure(t)) => Some(t); case _ => None}
