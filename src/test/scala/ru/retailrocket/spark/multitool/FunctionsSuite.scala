@@ -35,12 +35,18 @@ class FunctionsSuite extends FunSuite with BeforeAndAfterAll {
     assert(dst.ignore.count() === 1)
   }
 
-  test("transform with option") {
+  test("flat transform") {
     val src = sc.parallelize(List(1,2,4,0))
-    val dst = src.transform{case x => Try{8/x}.toOption}
-    assert(dst.output.flatMap{x=>x}.count() === 3)
-    assert(dst.error.count() === 0)
-    assert(dst.ignore.count() === 0)
+
+    val dst1 = src.flatTransform{x => Try{8/x}.toOption}
+    assert(dst1.output.count() === 3)
+    assert(dst1.error.count() === 0)
+    assert(dst1.ignore.count() === 0)
+
+    val dst2 = src.flatTransform{x => Seq(x,x)}
+    assert(dst2.output.count() === 8)
+    assert(dst2.error.count() === 0)
+    assert(dst2.ignore.count() === 0)
   }
 
   override def afterAll() {

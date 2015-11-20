@@ -119,6 +119,9 @@ package object multitool {
       def transform[R:ClassTag](f: T=>R): RDDFunctions.TransformResult[T,R] = {
         RDDFunctions.transform(f)(self)
       }
+      def flatTransform[R:ClassTag](f: T=>TraversableOnce[R]): RDDFunctions.TransformResult[T,R] = {
+        RDDFunctions.flatTransform(f)(self)
+      }
     }
 
     implicit class MultitoolDataFrameFunctionsImplicits(val self: DataFrame) {

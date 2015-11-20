@@ -40,6 +40,14 @@ object RDDFunctions {
     TransformResult(output, error, ignore)
   }
 
+  def flatTransform[T:ClassTag, R:ClassTag](f: T=>TraversableOnce[R])(src: RDD[T]): TransformResult[T,R] = {
+    val dst = src.map{s => (s, Try{f(s)})}
+    val output = dst.flatMap{case (_, Success(d)) => d; case _ => None}
+    val error = dst.flatMap{case (_, Failure(t)) => Some(t); case _ => None}
+    val ignore = dst.flatMap{case (s, Failure(_)) => Some(s); case _ => None}
+    TransformResult(output, error, ignore)
+  }
+
   class KeyBasedMultipleTextOutputFormat extends MultipleTextOutputFormat[Text, Text] {
     override def generateFileNameForKeyValue(key: Text, value: Text, name: String): String = {
       key.toString + "/" + name
