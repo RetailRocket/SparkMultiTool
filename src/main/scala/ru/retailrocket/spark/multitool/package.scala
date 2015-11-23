@@ -137,5 +137,9 @@ package object multitool {
       def toInt = if(self) 1 else 0
       def toDouble = if(self) 1.0 else 0.0
     }
+
+    implicit class RichInt(val self: Int) extends AnyVal {
+      def toBoolean = self == 1
+    }
   }
 }
