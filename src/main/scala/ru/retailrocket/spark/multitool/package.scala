@@ -119,7 +119,7 @@ package object multitool {
       def transform[R:ClassTag](f: T=>R): RDDFunctions.TransformResult[T,R] = {
         RDDFunctions.transform(f)(self)
       }
-      def flatTransform[R:ClassTag](f: T=>TraversableOnce[R]): RDDFunctions.TransformResult[T,R] = {
+      def flatTransform[R:ClassTag, C<%TraversableOnce[R]](f: T=>C): RDDFunctions.TransformResult[T,R] = {
         RDDFunctions.flatTransform(f)(self)
       }
     }

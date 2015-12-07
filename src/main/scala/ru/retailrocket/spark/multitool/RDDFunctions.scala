@@ -40,7 +40,7 @@ object RDDFunctions {
     TransformResult(output, error, ignore)
   }
 
-  def flatTransform[T:ClassTag, R:ClassTag](f: T=>TraversableOnce[R])(src: RDD[T]): TransformResult[T,R] = {
+  def flatTransform[T:ClassTag, R:ClassTag, C<%TraversableOnce[R]](f: T=>C)(src: RDD[T]): TransformResult[T,R] = {
     val dst = src.map{s => (s, Try{f(s)})}
     val output = dst.flatMap{case (_, Success(d)) => d; case _ => None}
     val error = dst.flatMap{case (_, Failure(t)) => Some(t); case _ => None}
