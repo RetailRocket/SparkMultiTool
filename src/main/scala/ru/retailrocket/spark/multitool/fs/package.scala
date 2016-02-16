@@ -74,4 +74,11 @@ package object fs {
     out.write(bytes, 0, bytes.size)
     out.close()
   }
+
+  def createTempDirectoryLocal(prefix: String): String = {
+    val temp = File.createTempFile(prefix, "")
+    temp.delete()
+    temp.mkdir()
+    temp.getPath
+  }
 }

@@ -52,9 +52,10 @@ class FunctionsSuite extends FunSuite with BeforeAndAfterAll {
   }
 
   test("save via temp and archive") {
+    val root = fs.createTempDirectoryLocal("model_test")
     val data = sc.parallelize(Seq(1,2,3))
-    val temp = "/tmp/tests/model_test_temp"
-    val output = "/tmp/tests/model_test_data"
+    val temp = s"${root}/model_test_temp"
+    val output = s"${root}/model_test_data"
 
     fs.delete(output)
     data.saveViaTempWithRename(output, tempPath=Option(temp))
