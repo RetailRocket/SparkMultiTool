@@ -1,6 +1,8 @@
+
 package ru.retailrocket.spark.multitool
 
 import org.scalatest.{FunSuite,BeforeAndAfterAll}
+import java.nio.file.{FileAlreadyExistsException}
 
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
@@ -47,6 +49,27 @@ class FunctionsSuite extends FunSuite with BeforeAndAfterAll {
     assert(dst2.output.count() === 8)
     assert(dst2.error.count() === 0)
     assert(dst2.ignore.count() === 0)
+  }
+
+  test("save via temp and archive") {
+    val data = sc.parallelize(Seq(1,2,3))
+    val temp = "/tmp/tests/model_test_temp"
+    val output = "/tmp/tests/model_test_data"
+
+    fs.delete(output)
+    data.saveViaTempWithRename(output, tempPath=Option(temp))
+    assert(fs.exists(output))
+
+    intercept[FileAlreadyExistsException] { data.saveViaTempWithRename(output, tempPath=Option(temp)) }
+    Thread.sleep(1000)
+
+    data.saveViaTempWithReplace(output, tempPath=Option(temp))
+    assert(fs.exists(output))
+
+    fs.delete(output)
+    data.saveViaTempWithReplace(output, tempPath=Option(temp))
+    assert(fs.exists(output))
+    fs.delete(output)
   }
 
   override def afterAll() {

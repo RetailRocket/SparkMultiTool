@@ -5,6 +5,7 @@ import scala.util._
 
 import org.apache.spark.rdd._
 import org.apache.spark.sql._
+import org.apache.hadoop.io.compress._
 
 
 package object multitool {
@@ -121,6 +122,15 @@ package object multitool {
       }
       def flatTransform[R:ClassTag, C<%TraversableOnce[R]](f: T=>C): RDDFunctions.TransformResult[T,R] = {
         RDDFunctions.flatTransform(f)(self)
+      }
+      def saveViaTemp(output: String, tempPath: Option[String]=None, codec: Option[Class[_ <: CompressionCodec]]=None)(store: (String, String) => Unit): Unit = {
+        fs.saveViaTemp(self)(output, tempPath, codec)(store)
+      }
+      def saveViaTempWithReplace(output: String, tempPath: Option[String]=None, codec: Option[Class[_ <: CompressionCodec]]=None): Unit = {
+        fs.saveViaTempWithReplace(self)(output, tempPath, codec)
+      }
+      def saveViaTempWithRename(output: String, tempPath: Option[String]=None, codec: Option[Class[_ <: CompressionCodec]]=None): Unit = {
+        fs.saveViaTempWithRename(self)(output, tempPath, codec)
       }
     }
 
