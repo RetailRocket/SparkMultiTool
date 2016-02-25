@@ -3,6 +3,7 @@ package ru.retailrocket.spark.multitool
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
 import org.apache.spark.SparkConf
+import org.apache.spark.storage.StorageLevel
 import org.apache.spark.rdd._
 
 import org.apache.hadoop.mapreduce.RecordReader
@@ -26,10 +27,15 @@ import scala.util._
 
 
 object RDDFunctions {
+  val DefaultPersistLevel = StorageLevel.MEMORY_AND_DISK_SER
+
   case class TransformResult[T, R: ClassTag](output: RDD[R], error: RDD[Throwable], ignore: RDD[T]) {
     def name = classTag[R].toString
     def summary: String = s"${name} output ${output.count()} ignore ${ignore.count()}"
-    def cache(): TransformResult[T,R] = TransformResult(output.cache(), error.cache(), ignore.cache())
+    def cache(): TransformResult[T,R] =
+      TransformResult(output.cache(), error.cache(), ignore.cache())
+    def persist(level: StorageLevel=DefaultPersistLevel): TransformResult[T,R] =
+      TransformResult(output.persist(level), error.persist(level), ignore.persist(level))
   }
 
   def transform[T:ClassTag, R:ClassTag](f: T=>R)(src: RDD[T]): TransformResult[T,R] = {
