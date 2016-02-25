@@ -28,7 +28,7 @@ package object fs {
     saveViaTemp(src)(output, tempPath, codec) (replace _)
   }
 
-  def saveViaTempWithRename(src: RDD[_])(output: String, tempPath: Option[String], codec: Option[Class[_ <: CompressionCodec]]=None): Unit = {
+  def saveViaTempWithRename(src: RDD[_])(output: String, tempPath: Option[String]=None, codec: Option[Class[_ <: CompressionCodec]]=None): Unit = {
     saveViaTemp(src)(output, tempPath, codec) (rename _)
   }
 
@@ -38,10 +38,10 @@ package object fs {
     fs.exists(dstPath)
   }
 
-  def delete(dst: String): Unit = {
+  def delete(dst: String, recursive: Boolean=true): Unit = {
     val fs = FileSystem.get(new Configuration())
     val dstPath = new Path(dst)
-    if(fs.exists(dstPath)) fs.delete(dstPath, true)
+    if(fs.exists(dstPath)) fs.delete(dstPath, recursive)
   }
 
   def rename(src: String, dst: String) = {
