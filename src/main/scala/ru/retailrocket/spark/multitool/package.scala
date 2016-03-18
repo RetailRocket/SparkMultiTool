@@ -12,6 +12,7 @@ package object multitool {
   object Functions {
     def tap[T:ClassTag](f: T => Unit)(o: T) = {f(o); o}
     def applyIf[T:ClassTag](p: Boolean)(f: T => T)(o: T): T = {if(p) f(o) else o}
+    def applyOption[T:ClassTag,V:ClassTag](v: Option[V])(f: (T,V) => T)(o: T): T = {if(v.isDefined) f(o, v.get) else o}
     def tapIf[T:ClassTag](p: Boolean)(f: T => Unit)(o: T) = {if(p) f(o); o}
 
     def maxBy[T,O<%Ordered[O]](f:T=>O)(a:T, b:T) = if(f(a)>f(b)) a else b
@@ -22,9 +23,37 @@ package object multitool {
       (a._1+b._1, a._2+b._2)
     }
 
+    def sumTuple2[T1,T2](a: (T1,T2), b: (T1,T2))(implicit num1: Numeric[T1], num2: Numeric[T2]): (T1,T2) = {
+      val s1 = {
+        import num1._
+        a._1+b._1
+      }
+      val s2 = {
+        import num2._
+        a._2+b._2
+      }
+      (s1, s2)
+    }
+
     def sumTuple3[T](a: (T,T,T), b: (T,T,T))(implicit num: Numeric[T]): (T,T,T) = {
       import num._
       (a._1+b._1, a._2+b._2, a._3+b._3)
+    }
+
+    def sumTuple3[T1,T2,T3](a: (T1,T2,T3), b: (T1,T2,T3))(implicit num1: Numeric[T1], num2: Numeric[T2], num3: Numeric[T3]): (T1,T2,T3) = {
+      val s1 = {
+        import num1._
+        a._1+b._1
+      }
+      val s2 = {
+        import num2._
+        a._2+b._2
+      }
+      val s3 = {
+        import num3._
+        a._3+b._3
+      }
+      (s1, s2, s3)
     }
   }
 
@@ -97,6 +126,7 @@ package object multitool {
       def tap(f: T => Unit) = Functions.tap(f)(self)
       def tapIf(p: Boolean)(f: T => Unit) = Functions.tapIf(p)(f)(self)
       def applyIf(p: Boolean)(f: T => T): T = Functions.applyIf(p)(f)(self)
+      def applyOption[V:ClassTag](v: Option[V])(f: (T,V) => T): T = Functions.applyOption(v)(f)(self)
     }
 
     implicit class MultitoolPairFunctionsImplicits[K:ClassTag, V:ClassTag](val self: Traversable[(K,V)]) {

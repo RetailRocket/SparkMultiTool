@@ -73,6 +73,38 @@ class FunctionsSuite extends FunSuite with BeforeAndAfterAll {
     fs.delete(output)
   }
 
+  test("functions") {
+    import Functions._
+
+    {
+      val seq = Seq(1->2,4->3,2->4,4->1)
+      val max = seq.maxBy { _._2 }
+      val min = seq.minBy { _._2 }
+      assert(max === 2->4)
+      assert(min === 4->1)
+    }
+
+    {
+      val src = Seq(1->2, 2->3).reduce(sumTuple2[Int] _)
+      assert(src === 3->5)
+    }
+
+    {
+      val src = Seq(1.0->2, 2.0->3).reduce(sumTuple2[Double, Int] _)
+      assert(src === 3.0->5)
+    }
+
+    {
+      val src = Seq((1,2,3), (3,4,5)).reduce(sumTuple3[Int] _)
+      assert(src === (4,6,8))
+    }
+
+    {
+      val src = Seq((1,2.0,3L), (3,4.0,5L)).reduce(sumTuple3[Int, Double, Long] _)
+      assert(src === (4,6.0,8L))
+    }
+  }
+
   override def afterAll() {
     sc.stop()
   }
