@@ -103,6 +103,15 @@ class FunctionsSuite extends FunSuite with BeforeAndAfterAll {
       val src = Seq((1,2.0,3L), (3,4.0,5L)).reduce(sumTuple3[Int, Double, Long] _)
       assert(src === (4,6.0,8L))
     }
+
+    {
+      assert(Seq(1,2,3).contains(1) === true)
+      assert(Seq(1,2,3).contains(22) === false)
+      assert(Seq(1,2,3).contains("s") === false)
+
+      assert(Seq(1,2,3).has(1) === true)
+      assert(Seq(1,2,3).has(22) === false)
+    }
   }
 
   override def afterAll() {
