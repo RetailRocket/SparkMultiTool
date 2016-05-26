@@ -112,6 +112,12 @@ class FunctionsSuite extends FunSuite with BeforeAndAfterAll {
       assert(Seq(1,2,3).has(1) === true)
       assert(Seq(1,2,3).has(22) === false)
     }
+
+    {
+      assert("qq ww ee".nthIndexOf(" ", 0) == 2)
+      assert("qq ww ee rr tt".nthIndexOf(" ", 3) == 11)
+      assert("qq ww ee rr tt".nthSplit(" ", 3) == ("qq ww ee rr", "tt"))
+    }
   }
 
   override def afterAll() {

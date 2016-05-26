@@ -1,6 +1,7 @@
 package ru.retailrocket.spark
 
 import scala.reflect.ClassTag
+import scala.annotation.tailrec
 import scala.util._
 
 import org.apache.spark.rdd._
@@ -54,6 +55,20 @@ package object multitool {
         a._3+b._3
       }
       (s1, s2, s3)
+    }
+
+    def nthIndexOf(s: String, d: String, n: Int): Int = {
+      @tailrec
+      def f(n: Int, i: Int): Int = n match {
+          case -1 => i
+          case _ => f(n-1, s.indexOf(d, i+1))
+        }
+      f(n, 0)
+    }
+
+    def nthSplit(s: String, d: String, n: Int): (String, String) = {
+      val (s1, s2) = s.splitAt(nthIndexOf(s, d, n)+d.length)
+      (s1.take(s1.length-d.length), s2)
     }
   }
 
@@ -188,6 +203,15 @@ package object multitool {
 
     implicit class RichInt(val self: Int) extends AnyVal {
       def toBoolean = self == 1
+    }
+
+    implicit class RichString(val self: String) extends AnyVal {
+      def nthIndexOf(d: String, n: Int): Int = {
+        Functions.nthIndexOf(self, d, n)
+      }
+      def nthSplit(d: String, n: Int): (String, String) = {
+        Functions.nthSplit(self, d, n)
+      }
     }
   }
 }
