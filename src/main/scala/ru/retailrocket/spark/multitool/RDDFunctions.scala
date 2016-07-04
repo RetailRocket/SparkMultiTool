@@ -62,15 +62,15 @@ object RDDFunctions {
     override def generateActualKey(key: Text, value: Text) = null
   }
 
-  def saveAsMultipleTextFiles[T:ClassTag](src: RDD[T], extractPath: T => String, root: String) {
-    saveAsMultipleTextFiles(src, extractPath, root, None)
+  def saveAsMultipleTextFiles[T:ClassTag](src: RDD[T], root: String)(getPath: T => String)(getData: T => _) {
+    saveAsMultipleTextFiles(src, root, None)(getPath)(getData)
   }
 
-  def saveAsMultipleTextFiles[T:ClassTag](src: RDD[T], extractPath: T => String, root: String, codec: Class[_ <: CompressionCodec]) {
-    saveAsMultipleTextFiles(src, extractPath, root, Option(codec))
+  def saveAsMultipleTextFiles[T:ClassTag](src: RDD[T], root: String, codec: Class[_ <: CompressionCodec])(getPath: T => String)(getData: T => _) {
+    saveAsMultipleTextFiles(src, root, Option(codec))(getPath)(getData)
   }
 
-  def saveAsMultipleTextFiles[T:ClassTag](src: RDD[T], extractPath: T => String, root: String, codec: Option[Class[_ <: CompressionCodec]]) {
+  def saveAsMultipleTextFiles[T:ClassTag](src: RDD[T], root: String, codec: Option[Class[_ <: CompressionCodec]])(getPath: T => String)(getData: T => _) {
     val hadoopConf = new Configuration()
     val jobConf = new JobConf(hadoopConf)
 
@@ -84,7 +84,7 @@ object RDDFunctions {
     FileOutputFormat.setOutputPath(jobConf, new Path(root))
 
     src
-      .map{v => (new Text(extractPath(v)), new Text(v.toString))}
+      .map { v => (new Text(getPath(v)), new Text(getData(v).toString)) }
       .saveAsHadoopDataset(jobConf)
   }
 }
