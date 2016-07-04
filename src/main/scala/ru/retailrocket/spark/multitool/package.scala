@@ -185,6 +185,15 @@ package object multitool {
       def saveViaTempWithRename(output: String, tempPath: Option[String]=None, codec: Option[Class[_ <: CompressionCodec]]=None): Unit = {
         fs.saveViaTempWithRename(self)(output, tempPath, codec)
       }
+      def saveAsMultipleTextFiles(root: String)(getPath: T => String)(getData: T => String): Unit = {
+        RDDFunctions.saveAsMultipleTextFiles(self, root)(getPath)(getData)
+      }
+      def saveAsMultipleTextFiles(root: String, codec: Class[_ <: CompressionCodec])(getPath: T => String)(getData: T => String): Unit = {
+        RDDFunctions.saveAsMultipleTextFiles(self, root, codec)(getPath)(getData)
+      }
+      def saveAsMultipleTextFiles(root: String, codec: Option[Class[_ <: CompressionCodec]])(getPath: T => String)(getData: T => String): Unit = {
+        RDDFunctions.saveAsMultipleTextFiles(self, root, codec)(getPath)(getData)
+      }
     }
 
     implicit class MultitoolDataFrameFunctionsImplicits(val self: DataFrame) {
