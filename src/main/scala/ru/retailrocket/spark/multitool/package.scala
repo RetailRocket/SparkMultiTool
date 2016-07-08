@@ -137,12 +137,17 @@ package object multitool {
   }
 
   object Implicits {
+    object Ops {
+      implicit class MultitoolOpsImplicits[T:ClassTag](val self: T) {
+        def ===(that: T): Boolean = this == that
+      }
+    }
+
     implicit class MultitoolFunctionsImplicits[T:ClassTag](val self: T) {
       def tap(f: T => Unit) = Functions.tap(f)(self)
       def tapIf(p: Boolean)(f: T => Unit) = Functions.tapIf(p)(f)(self)
       def applyIf(p: Boolean)(f: T => T): T = Functions.applyIf(p)(f)(self)
       def applyOption[V:ClassTag](v: Option[V])(f: (T,V) => T): T = Functions.applyOption(v)(f)(self)
-      def ===(that: T): Boolean = this == that
     }
 
     implicit class MultitoolPairFunctionsImplicits[K:ClassTag, V:ClassTag](val self: Traversable[(K,V)]) {

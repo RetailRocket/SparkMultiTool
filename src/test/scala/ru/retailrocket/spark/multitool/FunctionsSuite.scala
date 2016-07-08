@@ -1,8 +1,7 @@
-
 package ru.retailrocket.spark.multitool
 
-import org.scalatest.{FunSuite,BeforeAndAfterAll}
-import java.nio.file.{FileAlreadyExistsException}
+import org.scalatest._
+import java.nio.file.FileAlreadyExistsException
 
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
@@ -117,6 +116,11 @@ class FunctionsSuite extends FunSuite with BeforeAndAfterAll {
       assert("qq ww ee".nthIndexOf(" ", 0) == 2)
       assert("qq ww ee rr tt".nthIndexOf(" ", 3) == 11)
       assert("qq ww ee rr tt".nthSplit(" ", 3) == ("qq ww ee rr", "tt"))
+    }
+
+    {
+      import Implicits.Ops
+      assert("1" == "1")
     }
   }
 
