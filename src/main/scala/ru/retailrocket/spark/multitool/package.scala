@@ -138,8 +138,9 @@ package object multitool {
 
   object Implicits {
     object Ops {
-      implicit class MultitoolOpsImplicits[T:ClassTag](val self: T) {
-        def ===(that: T): Boolean = this == that
+      implicit class MultitoolOpsImplicits[T](val self: T) {
+        def ===(that: T): Boolean = self == that
+        def !==(that: T): Boolean = self != that
       }
     }
 
