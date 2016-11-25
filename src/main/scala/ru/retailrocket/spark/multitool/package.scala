@@ -13,6 +13,7 @@ package object multitool {
   object Functions {
     def tap[T:ClassTag](f: T => Unit)(o: T) = {f(o); o}
     def applyIf[T:ClassTag](p: Boolean)(f: T => T)(o: T): T = {if(p) f(o) else o}
+    def applyIf[T:ClassTag](p: T=>Boolean)(f: T => T)(o: T): T = {if(p(o)) f(o) else o}
     def applyOption[T:ClassTag,V:ClassTag](v: Option[V])(f: (T,V) => T)(o: T): T = {if(v.isDefined) f(o, v.get) else o}
     def tapIf[T:ClassTag](p: Boolean)(f: T => Unit)(o: T) = {if(p) f(o); o}
 
