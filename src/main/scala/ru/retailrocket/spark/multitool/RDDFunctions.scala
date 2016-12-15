@@ -58,6 +58,7 @@ object RDDFunctions {
   case class TransformResultWithAccums[T, R: ClassTag](output: RDD[R], error: RDD[Throwable], ignore: RDD[T], outputAccum: Accumulator[Long], errorAccum: Accumulator[Long]) {
     def name = classTag[R].toString
     def summary: String = s"${name} output ${outputAccum.value} error ${errorAccum.value}"
+    def errorRatio: Double = errorAccum.value.toDouble / (outputAccum.value + errorAccum.value)
     def cache(): TransformResult[T,R] =
       TransformResult(output.cache(), error.cache(), ignore.cache())
     def persist(level: StorageLevel=DefaultPersistLevel): TransformResult[T,R] =
