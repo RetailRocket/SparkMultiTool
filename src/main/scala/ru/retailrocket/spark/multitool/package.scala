@@ -4,6 +4,7 @@ import scala.reflect.ClassTag
 import scala.annotation.tailrec
 import scala.util._
 
+import org.apache.spark.SparkContext
 import org.apache.spark.rdd._
 import org.apache.spark.sql._
 import org.apache.hadoop.io.compress._
@@ -183,6 +184,12 @@ package object multitool {
       }
       def flatTransform[R:ClassTag, C<%TraversableOnce[R]](f: T=>C): RDDFunctions.TransformResult[T,R] = {
         RDDFunctions.flatTransform(f)(self)
+      }
+      def transformWithAccums[R:ClassTag](f: T=>R)(implicit sc: SparkContext): RDDFunctions.TransformResultWithAccums[T,R] = {
+        RDDFunctions.transformWithAccums(f)(self)
+      }
+      def flatTransformWithAccums[R:ClassTag, C<%TraversableOnce[R]](f: T=>C)(implicit sc: SparkContext): RDDFunctions.TransformResultWithAccums[T,R] = {
+        RDDFunctions.flatTransformWithAccums(f)(self)
       }
       def saveViaTemp(output: String, tempPath: Option[String]=None, codec: Option[Class[_ <: CompressionCodec]]=None)(store: (String, String) => Unit): Unit = {
         fs.saveViaTemp(self)(output, tempPath, codec)(store)
