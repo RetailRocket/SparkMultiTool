@@ -79,7 +79,7 @@ object RDDFunctions {
     val outputAccum = sc.accumulator(0L, "output")
     val errorAccum = sc.accumulator(0L, "error")
     val dst = src.map{s => (s, Try{f(s)})}
-    val output = dst.flatMap{case (_, Success(d)) => outputAccum += 1; d; case _ => errorAccum += 1; None}
+    val output = dst.flatMap{case (_, Success(d)) => outputAccum += d.size; d; case _ => errorAccum += 1; None}
     val error = dst.flatMap{case (_, Failure(t)) => Some(t); case _ => None}
     val ignore = dst.flatMap{case (s, Failure(_)) => Some(s); case _ => None}
     TransformResultWithAccums(output, error, ignore, outputAccum, errorAccum)
