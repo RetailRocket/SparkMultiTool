@@ -55,9 +55,9 @@ object RDDFunctions {
     TransformResult(output, error, ignore)
   }
 
-  case class TransformResultWithAccums[T, R: ClassTag](output: RDD[R], error: RDD[Throwable], ignore: RDD[T], outputAccum: Accumulator[Long], errorAccum: Accumulator[Long]) {
+  case class TransformResultWithAccums[T, R: ClassTag](output: RDD[R], error: RDD[Throwable], ignore: RDD[T], inputAccum: Accumulator[Long], outputAccum: Accumulator[Long], errorAccum: Accumulator[Long]) {
     def name = classTag[R].toString
-    def summary: String = s"${name} output ${outputAccum.value} error ${errorAccum.value}"
+    def summary: String = s"${name} input ${inputAccum.value} output ${outputAccum.value} error ${errorAccum.value}"
     def errorRatio: Double = errorAccum.value.toDouble / (outputAccum.value + errorAccum.value)
     def cache(): TransformResult[T,R] =
       TransformResult(output.cache(), error.cache(), ignore.cache())
@@ -66,23 +66,57 @@ object RDDFunctions {
   }
 
   def transformWithAccums[T:ClassTag, R:ClassTag](f: T=>R)(src: RDD[T])(implicit sc: SparkContext): TransformResultWithAccums[T,R] = {
+    val inputAccum = sc.accumulator(0L, "input")
     val outputAccum = sc.accumulator(0L, "output")
     val errorAccum = sc.accumulator(0L, "error")
     val dst = src.map{s => (s, Try{f(s)})}
-    val output = dst.flatMap{case (_, Success(d)) => outputAccum += 1; Some(d); case _ => errorAccum += 1; None}
-    val error = dst.flatMap{case (_, Failure(t)) => Some(t); case _ => None}
-    val ignore = dst.flatMap{case (s, Failure(_)) => Some(s); case _ => None}
-    TransformResultWithAccums(output, error, ignore, outputAccum, errorAccum)
+    val output = dst.flatMap{
+        case (_, Success(d)) =>
+          inputAccum += 1
+          outputAccum += 1
+          Some(d)
+        case _ =>
+          inputAccum += 1
+          errorAccum += 1
+          None}
+    val error = dst.flatMap{
+        case (_, Failure(t)) =>
+          Some(t)
+        case _ =>
+          None}
+    val ignore = dst.flatMap{
+        case (s, Failure(_)) =>
+          Some(s)
+        case _ =>
+          None}
+    TransformResultWithAccums(output, error, ignore, inputAccum, outputAccum, errorAccum)
   }
 
   def flatTransformWithAccums[T:ClassTag, R:ClassTag, C<%TraversableOnce[R]](f: T=>C)(src: RDD[T])(implicit sc: SparkContext): TransformResultWithAccums[T,R] = {
+    val inputAccum = sc.accumulator(0L, "input")
     val outputAccum = sc.accumulator(0L, "output")
     val errorAccum = sc.accumulator(0L, "error")
     val dst = src.map{s => (s, Try{f(s)})}
-    val output = dst.flatMap{case (_, Success(d)) => outputAccum += d.size; d; case _ => errorAccum += 1; None}
-    val error = dst.flatMap{case (_, Failure(t)) => Some(t); case _ => None}
-    val ignore = dst.flatMap{case (s, Failure(_)) => Some(s); case _ => None}
-    TransformResultWithAccums(output, error, ignore, outputAccum, errorAccum)
+    val output = dst.flatMap{
+        case (_, Success(d)) =>
+          inputAccum += 1
+          outputAccum += d.size
+          d
+        case _ =>
+          inputAccum += 1
+          errorAccum += 1
+          None}
+    val error = dst.flatMap{
+        case (_, Failure(t)) =>
+          Some(t)
+        case _ =>
+          None}
+    val ignore = dst.flatMap{
+        case (s, Failure(_)) =>
+          Some(s)
+        case _ =>
+          None}
+    TransformResultWithAccums(output, error, ignore, inputAccum, outputAccum, errorAccum)
   }
 
   class KeyBasedMultipleTextOutputFormat extends MultipleTextOutputFormat[Text, Text] {
