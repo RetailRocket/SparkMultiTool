@@ -17,6 +17,7 @@ package object multitool {
     def applyIf[T:ClassTag](p: T=>Boolean)(f: T => T)(o: T): T = {if(p(o)) f(o) else o}
     def applyOption[T:ClassTag,V:ClassTag](v: Option[V])(f: (T,V) => T)(o: T): T = {if(v.isDefined) f(o, v.get) else o}
     def tapIf[T:ClassTag](p: Boolean)(f: T => Unit)(o: T) = {if(p) f(o); o}
+    def use[T:ClassTag, R:ClassTag](f: T => R)(o: T): R = f(o)
 
     def maxBy[T,O<%Ordered[O]](f:T=>O)(a:T, b:T) = if(f(a)>f(b)) a else b
     def minBy[T,O<%Ordered[O]](f:T=>O)(a:T, b:T) = if(f(a)<f(b)) a else b
@@ -151,6 +152,7 @@ package object multitool {
       def tapIf(p: Boolean)(f: T => Unit) = Functions.tapIf(p)(f)(self)
       def applyIf(p: Boolean)(f: T => T): T = Functions.applyIf(p)(f)(self)
       def applyOption[V:ClassTag](v: Option[V])(f: (T,V) => T): T = Functions.applyOption(v)(f)(self)
+      def use[R: ClassTag](f: T => R): R = Functions.use(f)(self)
     }
 
     implicit class MultitoolPairFunctionsImplicits[K:ClassTag, V:ClassTag](val self: Traversable[(K,V)]) {
