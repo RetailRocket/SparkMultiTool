@@ -5,7 +5,7 @@
     <artifactId>multitool_2.10</artifactId>
     <packaging>jar</packaging>
     <description>multitool</description>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.3-SNAPSHOT</version>
     <name>spark-multitool</name>
     <organization>
         <name>ru.retailrocket.spark</name>

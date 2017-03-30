@@ -28,7 +28,7 @@ import scala.util._
 
 object DataFrameFunctions {
   def transform[R:ClassTag](f: Row=>Option[R])(src: DataFrame): RDDFunctions.TransformResult[Row,R] = {
-    val dst = src.map{s => (s, Try{f(s)})}
+    val dst = src.rdd.map{s => (s, Try{f(s)})}
     val output = dst.flatMap{case (_, Success(d)) => d; case _ => None}
     val error = dst.flatMap{case (_, Failure(t)) => Some(t); case _ => None}
     val ignore = dst.flatMap{case (s, Failure(_)) => Some(s); case _ => None}
@@ -36,7 +36,7 @@ object DataFrameFunctions {
   }
 
   def transform[R:ClassTag](f: Row=>R)(src: DataFrame)(implicit d: DummyImplicit): RDDFunctions.TransformResult[Row,R] = {
-    val dst = src.map{s => (s, Try{f(s)})}
+    val dst = src.rdd.map{s => (s, Try{f(s)})}
     val output = dst.flatMap{case (_, Success(d)) => Some(d); case _ => None}
     val error = dst.flatMap{case (_, Failure(t)) => Some(t); case _ => None}
     val ignore = dst.flatMap{case (s, Failure(_)) => Some(s); case _ => None}

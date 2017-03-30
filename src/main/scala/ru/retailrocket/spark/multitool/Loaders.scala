@@ -65,7 +65,7 @@ object Loaders {
     context: TaskAttemptContext,
     index: Integer) extends CombineTextFileRecordReader[LongWritable](split, context, index) {
 
-    override def generateKey(split: CombineFileSplit, index: Integer) = split.getOffset(index)
+    override def generateKey(split: CombineFileSplit, index: Integer): LongWritable = new LongWritable(split.getOffset(index))
   }
 
   private class CombineTextFileWithPathInputFormat extends CombineFileInputFormat[Text, Text] {
@@ -80,7 +80,7 @@ object Loaders {
     context: TaskAttemptContext,
     index: Integer) extends CombineTextFileRecordReader[Text](split, context, index) {
 
-    override def generateKey(split: CombineFileSplit, index: Integer) = split.getPath(index).toString
+    override def generateKey(split: CombineFileSplit, index: Integer): Text = new Text(split.getPath(index).toString)
   }
 
   private abstract class CombineTextFileRecordReader[K](
