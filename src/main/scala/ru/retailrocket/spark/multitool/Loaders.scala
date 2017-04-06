@@ -210,7 +210,7 @@ object Loaders {
     sc.newAPIHadoopRDD(hadoopConf, classOf[CombineTextFileWithOffsetInputFormat], classOf[LongWritable], classOf[Text]).map(_._2.toString)
   }
 
-  def combineTextFile[T:ClassTag](loader: String => T)(sc: SparkContext, path: String,
+  def combineTextFileWithLoader[T:ClassTag](loader: String => T)(sc: SparkContext, path: String,
     size: Long = defaultCombineSize, delim: String = defaultCombineDelim,
     filterClass: Option[String] = None, filterRules: Option[String] = None): RDD[T] = {
 
@@ -219,7 +219,7 @@ object Loaders {
 
   implicit class SparkContextFunctions(val self: SparkContext) extends AnyVal {
     def combineTextFile(path: String, size: Long = defaultCombineSize, delim: String = defaultCombineDelim): RDD[String] = Loaders.combineTextFile(self, path, size=size, delim=delim)
-    def combineTextFile[T:ClassTag](loader: String => T)(path: String, size: Long = defaultCombineSize, delim: String = defaultCombineDelim): RDD[T] = Loaders.combineTextFile(loader)(self, path, size=size, delim=delim)
+    def combineTextFileWithLoader[T:ClassTag](loader: String => T)(path: String, size: Long = defaultCombineSize, delim: String = defaultCombineDelim): RDD[T] = Loaders.combineTextFileWithLoader(loader)(self, path, size=size, delim=delim)
 
     def forPath(path: String): Loaders.Context = Loaders.forPath(self, path)
   }

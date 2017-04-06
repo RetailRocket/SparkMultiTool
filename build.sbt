@@ -4,7 +4,7 @@ name := "multitool"
 
 version := "0.3-SNAPSHOT"
 
-scalaVersion := "2.10.4"
+scalaVersion := "2.11.8"
 
 parallelExecution in Test := false
 
@@ -16,7 +16,7 @@ libraryDependencies += "org.apache.spark" %% "spark-sql" % "2.1.0" % "provided"
 
 libraryDependencies += "org.apache.hadoop" % "hadoop-client" % "2.3.0-cdh5.1.2" % "provided"
 
-libraryDependencies += "org.scalatest" % "scalatest_2.10" % "2.0" % "test"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % "test"
 
 libraryDependencies += "com.typesafe" % "config" % "1.2.1"
 

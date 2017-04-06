@@ -33,7 +33,7 @@ class LoadersSuite extends FunSuite with BeforeAndAfterAll {
   }
 
   test("combineTextFile with loader") {
-    val output = sc.combineTextFile(_.toLong)(path("combine")).collect.sorted
+    val output = sc.combineTextFileWithLoader(_.toLong)(path("combine")).collect.sorted
     assert(output.deep == Array(1,2,3,4).deep)
   }
 
