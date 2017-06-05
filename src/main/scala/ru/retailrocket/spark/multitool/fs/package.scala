@@ -67,9 +67,9 @@ package object fs {
     out.close()
   }
 
-  def storeHdfs(data: String, path: String) {
+  def storeHdfs(data: String, path: String, overwrite: Boolean = false) {
     val fs = FileSystem.get(new Configuration())
-    val out = fs.create(new Path(path))
+    val out = fs.create(new Path(path), overwrite)
     val bytes = data.getBytes
     out.write(bytes, 0, bytes.size)
     out.close()
