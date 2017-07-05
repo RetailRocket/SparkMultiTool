@@ -20,16 +20,28 @@ package object fs {
     store(temp, output)
   }
 
-  def saveViaTemp(src: RDD[_])(output: String, tempPath: Option[String]=None, codec: Option[Class[_ <: CompressionCodec]]=None)(store: (String, String) => Unit): Unit = {
+  def saveRddViaTemp(src: RDD[_])(output: String, tempPath: Option[String]=None, codec: Option[Class[_ <: CompressionCodec]]=None)(store: (String, String) => Unit): Unit = {
     actionViaTemp(output, tempPath) { path => src.saveAsTextFile(path, codec getOrElse DefaultCodec) } (store)
   }
 
-  def saveViaTempWithReplace(src: RDD[_])(output: String, tempPath: Option[String]=None, codec: Option[Class[_ <: CompressionCodec]]=None): Unit = {
-    saveViaTemp(src)(output, tempPath, codec) (replace _)
+  def saveRddViaTempWithReplace(src: RDD[_])(output: String, tempPath: Option[String]=None, codec: Option[Class[_ <: CompressionCodec]]=None): Unit = {
+    saveRddViaTemp(src)(output, tempPath, codec) (replace _)
   }
 
-  def saveViaTempWithRename(src: RDD[_])(output: String, tempPath: Option[String]=None, codec: Option[Class[_ <: CompressionCodec]]=None): Unit = {
-    saveViaTemp(src)(output, tempPath, codec) (rename _)
+  def saveRddViaTempWithRename(src: RDD[_])(output: String, tempPath: Option[String]=None, codec: Option[Class[_ <: CompressionCodec]]=None): Unit = {
+    saveRddViaTemp(src)(output, tempPath, codec) (rename _)
+  }
+
+  def saveStringViaTemp(src: String)(output: String, tempPath: Option[String]=None, overwrite: Boolean = false )(store: (String, String) => Unit): Unit = {
+    actionViaTemp(output, tempPath) { path => storeHdfs(src, path, overwrite) } (store)
+  }
+
+  def saveStringViaTempWithReplace(src: String)(output: String, tempPath: Option[String]=None, overwrite: Boolean = false ): Unit = {
+    saveStringViaTemp(src)(output, tempPath, overwrite) (replace _)
+  }
+
+  def saveStringViaTempWithRename(src: String)(output: String, tempPath: Option[String]=None, overwrite: Boolean = false ): Unit = {
+    saveStringViaTemp(src)(output, tempPath, overwrite) (rename _)
   }
 
   def exists(dst: String): Boolean = {

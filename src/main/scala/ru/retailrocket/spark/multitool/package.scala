@@ -194,13 +194,13 @@ package object multitool {
         RDDFunctions.flatTransformWithAccums(f)(self)
       }
       def saveViaTemp(output: String, tempPath: Option[String]=None, codec: Option[Class[_ <: CompressionCodec]]=None)(store: (String, String) => Unit): Unit = {
-        fs.saveViaTemp(self)(output, tempPath, codec)(store)
+        fs.saveRddViaTemp(self)(output, tempPath, codec)(store)
       }
       def saveViaTempWithReplace(output: String, tempPath: Option[String]=None, codec: Option[Class[_ <: CompressionCodec]]=None): Unit = {
-        fs.saveViaTempWithReplace(self)(output, tempPath, codec)
+        fs.saveRddViaTempWithReplace(self)(output, tempPath, codec)
       }
       def saveViaTempWithRename(output: String, tempPath: Option[String]=None, codec: Option[Class[_ <: CompressionCodec]]=None): Unit = {
-        fs.saveViaTempWithRename(self)(output, tempPath, codec)
+        fs.saveRddViaTempWithRename(self)(output, tempPath, codec)
       }
       def saveAsMultipleTextFiles(root: String)(getPath: T => String)(getData: T => String): Unit = {
         RDDFunctions.saveAsMultipleTextFiles(self, root)(getPath)(getData)

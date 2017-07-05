@@ -2,7 +2,7 @@ organization := "ru.retailrocket.spark"
 
 name := "multitool"
 
-version := "0.3-SNAPSHOT"
+version := "0.4-SNAPSHOT"
 
 scalaVersion := "2.11.8"
 
@@ -10,9 +10,9 @@ parallelExecution in Test := false
 
 fork in Test := true
 
-libraryDependencies += "org.apache.spark" %% "spark-core" % "2.1.0" % "provided"
+libraryDependencies += "org.apache.spark" %% "spark-core" % "2.1.1" % "provided"
 
-libraryDependencies += "org.apache.spark" %% "spark-sql" % "2.1.0" % "provided"
+libraryDependencies += "org.apache.spark" %% "spark-sql" % "2.1.1" % "provided"
 
 libraryDependencies += "org.apache.hadoop" % "hadoop-client" % "2.3.0-cdh5.1.2" % "provided"
 
