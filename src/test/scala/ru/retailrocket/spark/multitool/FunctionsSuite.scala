@@ -114,6 +114,10 @@ class FunctionsSuite extends FunSuite with BeforeAndAfterAll {
       assert(Array(1,2,3).contains(1) === true)
       assert(Array(1,2,3).contains(22) === false)
       assert(Array(1,2,3).contains("s") === false)
+
+      assert(Array(1,2,3).has(1) === true)
+      assert(Array(1,2,3).has(22) === false)
+      assertTypeError("""Array(1,2,3).has("s")""")
     }
 
     {
