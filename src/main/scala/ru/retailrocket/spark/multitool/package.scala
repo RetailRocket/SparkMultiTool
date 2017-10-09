@@ -180,6 +180,10 @@ package object multitool {
       def has(t: T) = self.contains(t)
     }
 
+    implicit class MultitoolArrayFunctionsImplicits[T](val self: Array[T]) extends AnyVal {
+      def has(t: T) = self.contains(t)
+    }
+
     implicit class MultitoolRDDFunctionsImplicits[T:ClassTag](val self: RDD[T]) {
       def transform[R:ClassTag](f: T=>R): RDDFunctions.TransformResult[T,R] = {
         RDDFunctions.transform(f)(self)
