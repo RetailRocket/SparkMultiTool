@@ -56,12 +56,19 @@ package object fs {
     if(fs.exists(dstPath)) fs.delete(dstPath, recursive)
   }
 
+  def checkParentAndRename(src: Path, dst: Path) {
+    val fs = FileSystem.get(new Configuration())
+    if(!fs.getFileStatus(dst.getParent).isDirectory)
+      throw new ParentNotDirectoryException(s"rename destination parent ${dst.getParent} isn't a directory.")
+    fs.rename(src, dst)
+  }
+
   def rename(src: String, dst: String) = {
     val fs = FileSystem.get(new Configuration())
     val dstPath = new Path(dst)
     val srcPath = new Path(src)
     if(fs.exists(dstPath)) throw new FileAlreadyExistsException(s"path already exists - ${dst}")
-    fs.rename(srcPath, dstPath)
+    checkParentAndRename(srcPath, dstPath)
   }
 
   def replace(src: String, dst: String) = {
@@ -69,7 +76,7 @@ package object fs {
     val srcPath = new Path(src)
     val dstPath = new Path(dst)
     if(fs.exists(dstPath)) fs.delete(dstPath, true)
-    fs.rename(srcPath, dstPath)
+    checkParentAndRename(srcPath, dstPath)
   }
 
   def storeLocal(data: String, path: String) {
