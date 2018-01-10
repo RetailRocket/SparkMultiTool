@@ -8,6 +8,6 @@ object MyProject {
   def main(args: Array[String]) {
     val sc = new SparkContext("local", "MyProject")
     val sessions = sc.combineTextFile("file://" + getClass.getResource("src/main/resource").getFile)
-    println(sessions.count)
+    println(s"sessions count ${sessions.count()}")
   }
 }
