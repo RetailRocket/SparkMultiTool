@@ -22,10 +22,6 @@ resolvers += "Akka Repository" at "http://repo.akka.io/releases/"
 
 resolvers += "Cloudera" at "https://repository.cloudera.com/artifactory/cloudera-repos/"
 
-publishTo := Some("Artifactory Realm" at sys.env("MAVEN_REPO_PATH") + ";build.timestamp=" + new java.util.Date().getTime)
-
-credentials += Credentials("Artifactory Realm", sys.env("MAVEN_REPO_HOST"), sys.env("MAVEN_REPO_USER"), sys.env("MAVEN_REPO_PASS"))
-
 pomExtra :=
   <build>
     <sourceDirectory>src/main/scala</sourceDirectory>
