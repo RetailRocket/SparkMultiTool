@@ -15,7 +15,7 @@ package object fs {
 
   def actionViaTemp(output: String, tempPath: Option[String]=None)(action: String => Unit)(store: (String, String) => Unit): Unit = {
     val tempRoot = tempPath getOrElse DefaultTempPath
-    val temp = "%s_%d".format(tempRoot, System.currentTimeMillis/1000)
+    val temp = "%s_%d".format(tempRoot, System.currentTimeMillis)
     action(temp)
     store(temp, output)
   }
