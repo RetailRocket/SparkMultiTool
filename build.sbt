@@ -2,7 +2,7 @@ organization := "ru.retailrocket.spark"
 
 name := "multitool"
 
-version := "0.6"
+version := "0.7"
 
 scalaVersion := "2.11.8"
 
@@ -10,9 +10,9 @@ parallelExecution in Test := false
 
 fork in Test := true
 
-libraryDependencies += "org.apache.spark" %% "spark-core" % "2.1.1" % "provided"
+libraryDependencies += "org.apache.spark" %% "spark-core" % "2.3.1" % "provided"
 
-libraryDependencies += "org.apache.spark" %% "spark-sql" % "2.1.1" % "provided"
+libraryDependencies += "org.apache.spark" %% "spark-sql" % "2.3.1" % "provided"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % "test"
 

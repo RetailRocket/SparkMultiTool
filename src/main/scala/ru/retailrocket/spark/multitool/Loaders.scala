@@ -164,6 +164,7 @@ object Loaders {
       .addFilterRules(filter._2)
 
     def setSplitSize(size: Long) = {
+      conf.setLong("mapred.min.split.size", size*1024*1024)
       conf.setLong("mapred.max.split.size", size*1024*1024)
       this
     }
@@ -173,54 +174,20 @@ object Loaders {
       this
     }
 
-    def combine(): RDD[String] = {
-      sc.newAPIHadoopRDD(conf, classOf[CombineTextFileWithOffsetInputFormat], classOf[LongWritable], classOf[Text]).map(_._2.toString)
-    }
+    def combine(): RDD[String] = sc
+      .newAPIHadoopRDD(conf, classOf[CombineTextInputFormat], classOf[LongWritable], classOf[Text])
+      .map { case (k, v) => v.toString }
 
-    def combine[T:ClassTag](loader: String => T): RDD[T] = {
-      combine().flatMap{s => scala.util.Try{ loader(s) }.toOption}
-    }
-
-    def combineWithPath(): RDD[(String, String)] = {
-      sc
-        .newAPIHadoopRDD(conf, classOf[CombineTextFileWithPathInputFormat], classOf[Text], classOf[Text])
-        .map{case(path, data) => (path.toString, data.toString)}
-    }
+    def combineWithPath(): RDD[(String, String)] = sc
+      .newAPIHadoopRDD(conf, classOf[CombineTextFileWithPathInputFormat], classOf[Text], classOf[Text])
+      .map{case(path, data) => (path.toString, data.toString)}
   }
 
   def forPath(sc: SparkContext, path: String) = {
     new Context(sc, path)
   }
 
-  def combineTextFile(sc: SparkContext, path: String,
-    size: Long = defaultCombineSize, delim: String = defaultCombineDelim,
-    filterClass: Option[String] = None, filterRules: Option[String] = None) : RDD[String] = {
-
-    val hadoopConf = new Configuration()
-    hadoopConf.set("textinputformat.record.delimiter", delim)
-    hadoopConf.set("mapreduce.input.fileinputformat.input.dir.recursive", "true")
-    hadoopConf.set("mapred.input.dir", path)
-    hadoopConf.setLong("mapred.max.split.size", size*1024*1024)
-
-    if(filterClass.isDefined && filterRules.isDefined) {
-      hadoopConf.set("mapreduce.input.pathFilter.class", filterClass.get)
-      hadoopConf.set(Filter.RulesPropName, filterRules.get)
-    }
-
-    sc.newAPIHadoopRDD(hadoopConf, classOf[CombineTextFileWithOffsetInputFormat], classOf[LongWritable], classOf[Text]).map(_._2.toString)
-  }
-
-  def combineTextFileWithLoader[T:ClassTag](loader: String => T)(sc: SparkContext, path: String,
-    size: Long = defaultCombineSize, delim: String = defaultCombineDelim,
-    filterClass: Option[String] = None, filterRules: Option[String] = None): RDD[T] = {
-
-    combineTextFile(sc, path, size=size, delim=delim, filterClass=filterClass, filterRules=filterRules).flatMap{s => scala.util.Try{ loader(s) }.toOption}
-  }
-
   implicit class SparkContextFunctions(val self: SparkContext) extends AnyVal {
-    def combineTextFile(path: String, size: Long = defaultCombineSize, delim: String = defaultCombineDelim): RDD[String] = Loaders.combineTextFile(self, path, size=size, delim=delim)
-    def combineTextFileWithLoader[T:ClassTag](loader: String => T)(path: String, size: Long = defaultCombineSize, delim: String = defaultCombineDelim): RDD[T] = Loaders.combineTextFileWithLoader(loader)(self, path, size=size, delim=delim)
-
     def forPath(path: String): Loaders.Context = Loaders.forPath(self, path)
   }
 }
