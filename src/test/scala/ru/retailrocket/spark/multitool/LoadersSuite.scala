@@ -27,16 +27,6 @@ class LoadersSuite extends FunSuite with BeforeAndAfterAll {
   lazy val sc: SparkContext = new SparkContext("local", getClass.getSimpleName)
   def path(file: String) = getClass.getResource("/" + file).getFile
 
-  test("combineTextFile") {
-    val output = sc.combineTextFile(path("combine")).collect.sorted
-    assert(output.deep == Array("1","2","3","4").deep)
-  }
-
-  test("combineTextFile with loader") {
-    val output = sc.combineTextFileWithLoader(_.toLong)(path("combine")).collect.sorted
-    assert(output.deep == Array(1,2,3,4).deep)
-  }
-
   test("forPathAndCombine") {
     val output = sc.forPath(path("combine")).combine().collect.sorted
     assert(output.deep == Array("1","2","3","4").deep)
