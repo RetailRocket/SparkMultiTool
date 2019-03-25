@@ -56,10 +56,15 @@ package object fs {
     if(fs.exists(dstPath)) fs.delete(dstPath, recursive)
   }
 
+  def checkParentAndCreate(dst: Path): Unit = {
+    val fs = FileSystem.get(new Configuration())
+    val parent = dst.getParent
+    if(!fs.getFileStatus(parent).isDirectory) fs.mkdirs(parent)
+  }
+
   def checkParentAndRename(src: Path, dst: Path) {
     val fs = FileSystem.get(new Configuration())
-    if(!fs.getFileStatus(dst.getParent).isDirectory)
-      throw new ParentNotDirectoryException(s"rename destination parent ${dst.getParent} isn't a directory.")
+    checkParentAndCreate(dst)
     fs.rename(src, dst)
   }
 

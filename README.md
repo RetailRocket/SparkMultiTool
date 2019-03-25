@@ -27,7 +27,7 @@ Next copy spark-multitool*.jar from ./target/scala-2.11/...  to the lib folder o
 #Usage
 Include spark-multitool*.jar in --jars path in spark-submit like this:
 ```
-spark-submit --master local --executor-memory 2G --class "Tst" --num-executors 1 --executor-cores 1 --jars lib/spark-multitool_2.11-0.7.jar target/scala-2.11/tst_2.11-0.1.jar
+spark-submit --master local --executor-memory 2G --class "Tst" --num-executors 1 --executor-cores 1 --jars lib/spark-multitool_2.11-0.8.jar target/scala-2.11/tst_2.11-0.1.jar
 
 ```
 See examples folder.
