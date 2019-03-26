@@ -59,7 +59,7 @@ package object fs {
   def checkParentAndCreate(dst: Path): Unit = {
     val fs = FileSystem.get(new Configuration())
     val parent = dst.getParent
-    if(!fs.getFileStatus(parent).isDirectory) fs.mkdirs(parent)
+    if(!fs.exists(parent)) fs.mkdirs(parent)
   }
 
   def checkParentAndRename(src: Path, dst: Path) {
