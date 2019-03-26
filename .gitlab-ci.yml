@@ -1,4 +1,4 @@
-cript:
+before_script:
   - source $HOME/deploy_configuration/configure.sh
 
 stages:
@@ -24,4 +24,4 @@ publish:
     name: production
   only:
     - master
-
+ 
