@@ -99,7 +99,7 @@ package object fs {
     out.close()
   }
 
-  def storeIterableToHdfs[T](path: String, serializer: StringSerializer[T], overwrite: Boolean = false)(data: Iterable[T]) {
+  def storeIterableToHdfs[T](serializer: StringSerializer[T])(path: String, overwrite: Boolean = false)(data: Iterable[T]) {
     val fs = FileSystem.get(new Configuration())
     val file = fs.create(new Path(path), overwrite)
 
