@@ -4,7 +4,7 @@ import org.apache.hadoop.fs._
 import org.apache.hadoop.conf.Configuration
 import org.apache.hadoop.io.compress.CompressionCodec
 import org.apache.spark.rdd.RDD
-import java.io.{BufferedReader, InputStreamReader, FileInputStream, FileOutputStream, File}
+import java.io._
 import java.nio.file.{FileAlreadyExistsException}
 
 
@@ -97,6 +97,20 @@ package object fs {
     val bytes = data.getBytes
     out.write(bytes, 0, bytes.size)
     out.close()
+  }
+
+  def storeIterableToHdfs[T](path: String, serializer: StringSerializer[T], overwrite: Boolean = false)(data: Iterable[T]) {
+    val fs = FileSystem.get(new Configuration())
+    val file = fs.create(new Path(path), overwrite)
+
+    val writer = new BufferedWriter(new OutputStreamWriter(file))
+    data.foreach { src =>
+      writer.write(serializer(src))
+      writer.newLine()
+    }
+
+    writer.close()
+    file.close()
   }
 
   def createTempDirectoryLocal(prefix: String): String = {

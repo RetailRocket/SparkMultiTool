@@ -244,4 +244,8 @@ package object multitool {
       }
     }
   }
+
+  trait StringSerializer[T] {
+    def apply(src: T): String
+  }
 }
