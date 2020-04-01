@@ -2,7 +2,7 @@ organization := "ru.retailrocket.spark"
 
 name := "multitool"
 
-version := "0.10"
+version := "0.11"
 
 scalaVersion := "2.11.8"
 
