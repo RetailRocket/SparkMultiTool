@@ -14,6 +14,10 @@ import Implicits._
 
 object Helpers {
   def f(x:Int): Int = 8 / x
+
+  val serializer = new StringSerializer[Int] {
+      override def apply(src: Int) = s"i: ${src.toString}"
+    }
 }
 
 class FunctionsSuite extends FunSuite with BeforeAndAfterAll {
@@ -56,18 +60,22 @@ class FunctionsSuite extends FunSuite with BeforeAndAfterAll {
     val temp = s"${root}/model_test_temp"
     val output = s"${root}/model_test_data"
 
+
     fs.delete(output)
-    data.saveViaTempWithRename(output, tempPath=Option(temp))
+    data.saveViaTempWithRename(Helpers.serializer)(output, tempPath=Option(temp))
     assert(fs.exists(output))
 
-    intercept[FileAlreadyExistsException] { data.saveViaTempWithRename(output, tempPath=Option(temp)) }
+    val dst = sc.textFile(output).collect().toSet
+    assert(dst === Set("i: 1", "i: 2", "i: 3"))
+
+    intercept[FileAlreadyExistsException] { data.saveViaTempWithRename(Helpers.serializer)(output, tempPath=Option(temp)) }
     Thread.sleep(1000)
 
-    data.saveViaTempWithReplace(output, tempPath=Option(temp))
+    data.saveViaTempWithReplace(Helpers.serializer)(output, tempPath=Option(temp))
     assert(fs.exists(output))
 
     fs.delete(output)
-    data.saveViaTempWithReplace(output, tempPath=Option(temp))
+    data.saveViaTempWithReplace(Helpers.serializer)(output, tempPath=Option(temp))
     assert(fs.exists(output))
     fs.delete(output)
   }
