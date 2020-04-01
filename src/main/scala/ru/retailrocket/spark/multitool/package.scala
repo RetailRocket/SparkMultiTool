@@ -197,14 +197,14 @@ package object multitool {
       def flatTransformWithAccums[R:ClassTag, C<%TraversableOnce[R]](f: T=>C)(implicit sc: SparkContext): RDDFunctions.TransformResultWithAccums[T,R] = {
         RDDFunctions.flatTransformWithAccums(f)(self)
       }
-      def saveViaTemp(output: String, tempPath: Option[String]=None, codec: Option[Class[_ <: CompressionCodec]]=None)(store: (String, String) => Unit): Unit = {
-        fs.saveRddViaTemp(self)(output, tempPath, codec)(store)
+      def saveViaTemp(serializer: StringSerializer[T])(output: String, tempPath: Option[String]=None, codec: Option[Class[_ <: CompressionCodec]]=None)(store: (String, String) => Unit): Unit = {
+        fs.saveRddViaTemp(serializer)(output, tempPath, codec)(store)(self)
       }
-      def saveViaTempWithReplace(output: String, tempPath: Option[String]=None, codec: Option[Class[_ <: CompressionCodec]]=None): Unit = {
-        fs.saveRddViaTempWithReplace(self)(output, tempPath, codec)
+      def saveViaTempWithReplace(serializer: StringSerializer[T])(output: String, tempPath: Option[String]=None, codec: Option[Class[_ <: CompressionCodec]]=None): Unit = {
+        fs.saveRddViaTempWithReplace(serializer)(output, tempPath, codec)(self)
       }
-      def saveViaTempWithRename(output: String, tempPath: Option[String]=None, codec: Option[Class[_ <: CompressionCodec]]=None): Unit = {
-        fs.saveRddViaTempWithRename(self)(output, tempPath, codec)
+      def saveViaTempWithRename(serializer: StringSerializer[T])(output: String, tempPath: Option[String]=None, codec: Option[Class[_ <: CompressionCodec]]=None): Unit = {
+        fs.saveRddViaTempWithRename(serializer)(output, tempPath, codec)(self)
       }
       def saveAsMultipleTextFiles(root: String)(getPath: T => String)(getData: T => String): Unit = {
         RDDFunctions.saveAsMultipleTextFiles(self, root)(getPath)(getData)
@@ -245,7 +245,7 @@ package object multitool {
     }
   }
 
-  trait StringSerializer[T] {
+  trait StringSerializer[T] extends Serializable {
     def apply(src: T): String
   }
 }

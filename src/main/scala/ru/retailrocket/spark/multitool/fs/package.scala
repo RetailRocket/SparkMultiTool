@@ -20,28 +20,28 @@ package object fs {
     store(temp, output)
   }
 
-  def saveRddViaTemp(src: RDD[_])(output: String, tempPath: Option[String]=None, codec: Option[Class[_ <: CompressionCodec]]=None)(store: (String, String) => Unit): Unit = {
-    actionViaTemp(output, tempPath) { path => src.saveAsTextFile(path, codec getOrElse DefaultCodec) } (store)
+  def saveRddViaTemp[T](serializer: StringSerializer[T])(output: String, tempPath: Option[String]=None, codec: Option[Class[_ <: CompressionCodec]]=None)(store: (String, String) => Unit)(src: RDD[T]): Unit = {
+    actionViaTemp(output, tempPath) { path => src.map(serializer.apply _).saveAsTextFile(path, codec getOrElse DefaultCodec) } (store)
   }
 
-  def saveRddViaTempWithReplace(src: RDD[_])(output: String, tempPath: Option[String]=None, codec: Option[Class[_ <: CompressionCodec]]=None): Unit = {
-    saveRddViaTemp(src)(output, tempPath, codec) (replace _)
+  def saveRddViaTempWithReplace[T](serializer: StringSerializer[T])(output: String, tempPath: Option[String]=None, codec: Option[Class[_ <: CompressionCodec]]=None)(src: RDD[T]): Unit = {
+    saveRddViaTemp(serializer)(output, tempPath, codec)(replace _)(src)
   }
 
-  def saveRddViaTempWithRename(src: RDD[_])(output: String, tempPath: Option[String]=None, codec: Option[Class[_ <: CompressionCodec]]=None): Unit = {
-    saveRddViaTemp(src)(output, tempPath, codec) (rename _)
+  def saveRddViaTempWithRename[T](serializer: StringSerializer[T])(output: String, tempPath: Option[String]=None, codec: Option[Class[_ <: CompressionCodec]]=None)(src: RDD[T]): Unit = {
+    saveRddViaTemp(serializer)(output, tempPath, codec)(rename _)(src)
   }
 
-  def saveStringViaTemp(src: String)(output: String, tempPath: Option[String]=None, overwrite: Boolean = false )(store: (String, String) => Unit): Unit = {
+  def saveStringViaTemp(output: String, tempPath: Option[String]=None, overwrite: Boolean = false )(store: (String, String) => Unit)(src: String): Unit = {
     actionViaTemp(output, tempPath) { path => storeHdfs(src, path, overwrite) } (store)
   }
 
-  def saveStringViaTempWithReplace(src: String)(output: String, tempPath: Option[String]=None, overwrite: Boolean = false ): Unit = {
-    saveStringViaTemp(src)(output, tempPath, overwrite) (replace _)
+  def saveStringViaTempWithReplace(output: String, tempPath: Option[String]=None, overwrite: Boolean = false )(src: String): Unit = {
+    saveStringViaTemp(output, tempPath, overwrite)(replace _)(src)
   }
 
-  def saveStringViaTempWithRename(src: String)(output: String, tempPath: Option[String]=None, overwrite: Boolean = false ): Unit = {
-    saveStringViaTemp(src)(output, tempPath, overwrite) (rename _)
+  def saveStringViaTempWithRename(output: String, tempPath: Option[String]=None, overwrite: Boolean = false )(src: String): Unit = {
+    saveStringViaTemp(output, tempPath, overwrite)(rename _)(src)
   }
 
   def exists(dst: String): Boolean = {
