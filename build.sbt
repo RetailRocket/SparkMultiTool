@@ -20,6 +20,10 @@ libraryDependencies += "com.typesafe" % "config" % "1.2.1"
 
 libraryDependencies += "io.sensesecure" % "hadoop-xz" % "1.4"
 
+libraryDependencies += "org.apache.hadoop" % "hadoop-common" % "2.6.0"
+
+libraryDependencies += "org.apache.hadoop" % "hadoop-hdfs" % "2.6.0"
+
 resolvers += "Akka Repository" at "http://repo.akka.io/releases/"
 
 resolvers += "Cloudera" at "https://repository.cloudera.com/artifactory/cloudera-repos/"
