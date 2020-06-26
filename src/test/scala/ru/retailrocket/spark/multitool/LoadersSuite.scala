@@ -44,6 +44,23 @@ class LoadersSuite extends FunSuite with BeforeAndAfterAll {
     assert(output.deep == Array("3","4").deep)
   }
 
+  test("compression") {
+    {
+      val actual = sc.forPath(path("archive")+"/test_gzip.txt.gz").combine().collect().head
+      assert(actual === "gzip")
+    }
+
+    {
+      val actual = sc.forPath(path("archive")+"/test_bzip2.txt.bz2").combine().collect().head
+      assert(actual === "bzip2")
+    }
+
+    {
+      val actual = sc.forPath(path("archive")+"/test_lzma.txt.xz").combine().collect().head
+      assert(actual === "lzma")
+    }
+  }
+
   override def afterAll() {
     sc.stop()
   }
