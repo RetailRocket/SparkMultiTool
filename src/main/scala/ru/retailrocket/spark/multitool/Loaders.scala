@@ -144,10 +144,7 @@ object Loaders {
     conf.set("mapred.input.dir", path)
     conf.setLong("mapred.max.split.size", defaultCombineSize*1024*1024)
 
-    {
-      val codecs = conf.get("io.compression.codecs")
-      conf.set("io.compression.codecs", s"${codecs},io.sensesecure.hadoop.xz.XZCodec")
-    }
+    conf.set("io.compression.codecs", s"io.sensesecure.hadoop.xz.XZCodec")
 
     def addFilterClass[T <: Filter](filterClass: Class[T]): Context = {
       conf.set("mapreduce.input.pathFilter.class", filterClass.getName)
