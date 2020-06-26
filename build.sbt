@@ -2,7 +2,7 @@ organization := "ru.retailrocket.spark"
 
 name := "multitool"
 
-version := "0.11"
+version := "0.12"
 
 scalaVersion := "2.11.8"
 
@@ -18,25 +18,9 @@ libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % "test"
 
 libraryDependencies += "com.typesafe" % "config" % "1.2.1"
 
+libraryDependencies += "io.sensesecure" % "hadoop-xz" % "1.4"
+
 resolvers += "Akka Repository" at "http://repo.akka.io/releases/"
 
 resolvers += "Cloudera" at "https://repository.cloudera.com/artifactory/cloudera-repos/"
 
-pomExtra :=
-  <build>
-    <sourceDirectory>src/main/scala</sourceDirectory>
-    <plugins>
-      <plugin>
-        <groupId>org.scala-tools</groupId>
-        <artifactId>maven-scala-plugin</artifactId>
-        <version>2.15.2</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>compile</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
